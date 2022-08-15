@@ -7,6 +7,12 @@
 	user-mail-address "vsharshukov@gmail.com")
 #+end_src
 
+* Custom settings
+#+begin_src emacs-lisp
+  (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
+  (load custom-file)
+#+end_src
+
 #+begin_src emacs-lisp
   (setq org-directory "~/.local/emacs/org/")
 
