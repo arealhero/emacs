@@ -1,10 +1,13 @@
 #+TITLE: Emacs configuration
 #+AUTHOR: Vladislav Sharshukov
 
+* Personal information
 #+begin_src emacs-lisp
   (setq user-full-name "Vladislav Sharshukov"
 	user-mail-address "vsharshukov@gmail.com")
+#+end_src
 
+#+begin_src emacs-lisp
   (setq org-directory "~/.local/emacs/org/")
 
   (setq confirm-kill-emacs nil)
