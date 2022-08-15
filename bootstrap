@@ -65,5 +65,8 @@ make install
 cd "$HOME/.config" # TODO: XDG
 [ ! -d "emacs" ] && git clone git@github.com:/arealhero/emacs
 
-emacs --batch -l emacs/init.el
+[ -d "$HOME/.emacs.d" ] && mv "$HOME/.emacs.d" "$HOME/emacs.d"
+
+cd emacs
+emacs --batch -l init.el
 
