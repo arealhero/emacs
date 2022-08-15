@@ -1,0 +1,69 @@
+#!/bin/sh
+
+set -e
+
+neat_dir="$HOME/.local/neat"
+repos_dir="$neat_dir/repos"
+autobuilds_dir="$neat_dir/autobuilds"
+
+repo="$repos_dir/emacs"
+build="$autobuilds_dir/emacs"
+prefix="$HOME/.local"
+
+# Clone repository if does not exist
+mkdir -p "$repos_dir"
+[ ! -d "$repo" ] && git clone --recursive git://git.savannah.gnu.org/emacs.git "$repo"
+
+# cd "$repo"
+# git pull
+
+# Copy repository to autobuilds
+mkdir -p "$autobuilds_dir"
+[ -d "$build" ] && rm -rf "$build"
+cp -r "$repo" "$build"
+
+# Preparing to build
+# TODO: test dependencies:
+#       json - libjasson-dev or something
+#       png - libpng-dev
+#       rsvg - librsvg-dev
+cd "$build"
+# git checkout emacs-28.1.90
+
+# Remove misc junk
+mv lisp/play/morse.el lisp/play/cookie1.el .
+rm -rf lisp/play/*
+mv morse.el cookie1.el lisp/play
+# TODO:
+#   Probably should remove various languages' support
+#   like khmer.el{,c} and others
+
+./autogen.sh
+mkdir -p build
+
+# Building
+cd build
+../configure \
+	--prefix="$prefix" \
+	--with-json \
+	--with-native-compilation \
+	--with-png \
+	--with-rsvg \
+	--with-tiff \
+	--with-xml2 \
+	--with-mailutils
+make -j"$(nproc)"
+
+# TODO: testing
+
+# Installing
+mkdir -p "$prefix"
+make install
+
+# Install packages
+
+cd "$HOME/.config" # TODO: XDG
+[ ! -d "emacs" ] && git clone git@github.com:/arealhero/emacs
+
+emacs --batch -l emacs/init.el
+
