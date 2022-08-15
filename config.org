@@ -1,0 +1,50 @@
+#+TITLE: Emacs configuration
+#+AUTHOR: Vladislav Sharshukov
+
+#+begin_src emacs-lisp
+  (setq user-full-name "Vladislav Sharshukov"
+	user-mail-address "vsharshukov@gmail.com")
+
+  (setq org-directory "~/.local/emacs/org/")
+
+  (setq confirm-kill-emacs nil)
+
+  (global-display-line-numbers-mode 1)
+  (setq display-line-numbers-type 'relative)
+
+  ;; (use-package org-roam
+  ;;   :ensure t
+  ;;   :custom
+  ;;   (org-roam-directory ))
+#+end_src
+
+** Evil mode
+#+begin_src emacs-lisp
+  (use-package evil
+    :ensure t
+    :init
+    (setq evil-want-C-u-scroll t)
+    :config
+    (evil-mode))
+
+  (use-package evil-commentary
+    :ensure t
+    :config
+    (evil-commentary-mode))
+
+  (use-package undo-tree
+    :ensure t
+    :config
+    (global-undo-tree-mode)
+    (evil-set-undo-system 'undo-tree))
+#+end_src
+
+** Theme
+#+begin_src emacs-lisp
+  (set-frame-font "Fira Code 12" nil t)
+  (load-theme 'modus-vivendi t)
+  ;; (use-package doom-themes
+  ;;   :ensure t
+  ;;   :config
+  ;;   (load-theme 'doom-gruvbox t))
+#+end_src
