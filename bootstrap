@@ -2,6 +2,17 @@
 
 set -e
 
+USAGE="usage: bootstrap [-fh]\n\t-f\tforce rebuild\n\t-p\treinstall packages\n\t-h\tprint help"
+
+while getopts fph flag
+do
+  case $flag in
+    f) force=1 ;;
+    p) packages=1 ;;
+    \? | h) echo -e "$USAGE"; exit 1 ;;
+  esac
+done
+
 neat_dir="$HOME/.local/neat"
 repos_dir="$neat_dir/repos"
 autobuilds_dir="$neat_dir/autobuilds"
@@ -19,54 +30,67 @@ mkdir -p "$repos_dir"
 
 # Copy repository to autobuilds
 mkdir -p "$autobuilds_dir"
-[ -d "$build" ] && rm -rf "$build"
-cp -r "$repo" "$build"
+if [ ! -d "$build" ] || [ ! -z "$force" ]; then
+  rm -rf "$build"
+  cp -r "$repo" "$build"
 
-# Preparing to build
-# TODO: test dependencies:
-#       json - libjasson-dev or something
-#       png - libpng-dev
-#       rsvg - librsvg-dev
-cd "$build"
-# git checkout emacs-28.1.90
+  # Preparing to build
+  # TODO: test dependencies:
+  #       json - libjasson-dev or something
+  #       png - libpng-dev
+  #       rsvg - librsvg-dev
+  cd "$build"
+  # git checkout emacs-28.1.90
 
-# Remove misc junk
-mv lisp/play/morse.el lisp/play/cookie1.el .
-rm -rf lisp/play/*
-mv morse.el cookie1.el lisp/play
-# TODO:
-#   Probably should remove various languages' support
-#   like khmer.el{,c} and others
+  # Remove misc junk
+  mv lisp/play/morse.el lisp/play/cookie1.el .
+  rm -rf lisp/play/*
+  mv morse.el cookie1.el lisp/play
+  # TODO:
+  #   Probably should remove various languages' support
+  #   like khmer.el{,c} and others
 
-./autogen.sh
-mkdir -p build
+  ./autogen.sh
+  mkdir -p build
 
-# Building
-cd build
-../configure \
-	--prefix="$prefix" \
-	--with-json \
-	--with-native-compilation \
-	--with-png \
-	--with-rsvg \
-	--with-tiff \
-	--with-xml2 \
-	--with-mailutils
-make -j"$(nproc)"
 
-# TODO: testing
+  # --without-all \
+  # Building
+  cd build
+  ../configure \
+    --prefix="$prefix" \
+    --with-json \
+    --with-mailutils \
+    --with-native-compilation \
+    --with-pgtk \
+    --with-png \
+    --with-rsvg \
+    --with-sound=no \
+    --with-tiff \
+    --with-xml2 \
+    --without-compress-install \
+    --without-m17n-flt \
+    --without-gpm \
+    --without-libotf
+  make -j"$(nproc)"
 
-# Installing
-mkdir -p "$prefix"
-make install
+  # TODO: testing
+
+  # Installing
+  mkdir -p "$prefix"
+  make install
+fi
+
 
 # Install packages
+[ -d "$HOME/.emacs.d" ] && rm -rf "$HOME/.emacs.d"
 
-cd "$HOME/.config" # TODO: XDG
-[ ! -d "emacs" ] && git clone git@github.com:/arealhero/emacs
-
-[ -d "$HOME/.emacs.d" ] && mv "$HOME/.emacs.d" "$HOME/emacs.d"
-
-cd emacs
-emacs --batch -l init.el
+if [ "$packages" ] || [ ! -d "$HOME/.config/emacs" ];
+then
+  cd "$HOME/.config" # TODO: XDG
+  rm -rf emacs
+  git clone https://github.com/arealhero/emacs.git
+  cd emacs
+  emacs --batch -l init.el
+fi
 
