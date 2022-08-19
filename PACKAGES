@@ -1,0 +1,25 @@
+--- Debian 11 ---
+
+Build dependencies:
+
+  sudo apt install autoconf libgtk-3-0 \
+    librsvg2-dev libpng-dev libjansson-dev \
+    libjansson4 mailutils libtiff-dev libtiff5 \
+    libgif-dev libxpm-dev libgnutls28-dev libxml2-dev
+
+Runtime dependencies (DOOM):
+
+  sudo apt install \
+    glslang-tools \
+    shellcheck \
+    npm \
+    markdown
+
+--- Arch Linux ---
+
+Build dependencies:
+
+  doas pacman -S libjpeg-turbo librsvg \
+    jansson mailutils libtiff giflib \
+    libxpm gnutls libxml2 libgccjit
+
