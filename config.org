@@ -7,10 +7,34 @@
 	user-mail-address "vsharshukov@gmail.com")
 #+end_src
 
+See [[https://libredd.it/r/emacs/comments/l42oep/comment/gkmnh3y/][this comment]].
+#+begin_src emacs-lisp
+  (setq comp-async-report-warnings-errors nil)
+  (setq native-comp-async-report-warnings-errors nil)
+#+end_src
+
+See [[https://libreddit.tiekoetter.com/r/emacs/comments/8pfdlb/weird_shifting_problem_with_new_emacs_line_numbers/][this thread]].
+#+begin_src emacs-lisp
+  (setq display-line-numbers-width-start t)
+#+end_src
+
 * Custom settings
 #+begin_src emacs-lisp
   (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
   (load custom-file)
+#+end_src
+
+List files (respecting .gitignore):
+#+begin_src sh
+  rg --files -nH --no-heading $(git rev-parse --show-superproject-working-tree)
+#+end_src
+
+
+** Scrolling behaviour
+#+begin_src emacs-lisp
+  (setq scroll-margin 5
+	scroll-step 1
+	scroll-conservatively 10000)
 #+end_src
 
 #+begin_src emacs-lisp
@@ -27,6 +51,8 @@
   ;;   (org-roam-directory ))
 #+end_src
 
+* Modes
+
 ** Evil mode
 #+begin_src emacs-lisp
   (use-package evil
@@ -35,6 +61,15 @@
     (setq evil-want-C-u-scroll t)
     :config
     (evil-mode))
+
+  (use-package evil-leader
+    :ensure t
+    :config
+    (global-evil-leader-mode)
+    (evil-leader/set-leader "<SPC>")
+    (evil-leader/set-key
+      "fs" 'grep-find
+      "ff" 'run-fzf))
 
   (use-package evil-commentary
     :ensure t
@@ -46,7 +81,48 @@
     :config
     (global-undo-tree-mode)
     (evil-set-undo-system 'undo-tree))
+
+  (use-package fzf
+    :ensure t)
+
+  (use-package ivy
+    :ensure t
+    :config
+    (ivy-mode))
+
+  ;;(use-package lsp-mode
+  ;;  :ensure t
+  ;;  :hook
+  ;;  (c++-mode . lsp)
+  ;;  :commands lsp
+  ;;  :config
+  ;;  (setq lsp-enable-symbol-highlighting nil))
+
+   (use-package eglot
+     :ensure t
+     :hook
+     (c++-mode . eglot-ensure)
+     :config
+     (setq eglot-ignored-server-capabilities '(:documentHighlightProvider)))
+
+  (use-package grep
+    :ensure t
+    :config
+    (grep-apply-setting
+     'grep-find-command
+     '("rg -n -H --no-heading -e '' $(git rev-parse --show-superproject-working-tree || pwd)" . 27)))
 #+end_src
+
+** Helper functions
+#+begin_src emacs-lisp
+  (defun run-fzf ()
+    (interactive)
+    (let ((process-environment
+	   (cons (concat "FZF_DEFAULT_COMMAND=rg --files --ignore -nH --no-heading")
+		 process-environment)))
+      (fzf/start default-directory #'fzf/action-find-file)))
+#+end_src
+
 
 ** Theme
 #+begin_src emacs-lisp
