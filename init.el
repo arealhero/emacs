@@ -7,6 +7,10 @@
 (setq inhibit-startup-message t)
 (setq initial-scratch-message "")
 
+;; Hide advertisement from minibuffer
+(defun display-startup-echo-area-message ()
+  (message ""))
+
 (blink-cursor-mode -1)
 
 ;; Set up package
