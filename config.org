@@ -1,10 +1,17 @@
 #+TITLE: Emacs configuration
 #+AUTHOR: Vladislav Sharshukov
 
-* Personal information
+* Personal informa
+tion
 #+begin_src emacs-lisp
   (setq user-full-name "Vladislav Sharshukov"
 	user-mail-address "vsharshukov@gmail.com")
+#+end_src
+
+* Theme
+#+begin_src emacs-lisp
+  (set-frame-font "Fira Code 14" nil t)
+  (load-theme 'modus-operandi t)
 #+end_src
 
 See [[https://libredd.it/r/emacs/comments/l42oep/comment/gkmnh3y/][this comment]].
@@ -38,18 +45,65 @@ List files (respecting .gitignore):
 #+end_src
 
 #+begin_src emacs-lisp
-  (setq org-directory "~/.local/emacs/org/")
-
   (setq confirm-kill-emacs nil)
 
   (global-display-line-numbers-mode 1)
   (setq display-line-numbers-type 'relative)
-
-  ;; (use-package org-roam
-  ;;   :ensure t
-  ;;   :custom
-  ;;   (org-roam-directory ))
 #+end_src
+
+** Backup & autosave files
+
+By default Emacs creates backup files (e.g. ~test.c\~~) and autosave files (e.g. ~#test.c#~) in the same directory
+the file belongs to. The next code block moves those files to the separate directory.
+
+#+begin_src emacs-lisp
+  (defconst emacs-cache-dir (expand-file-name "~/.cache/emacs"))
+  (make-directory emacs-cache-dir t)
+
+  (setq backup-directory-alist
+	`((".*" . ,emacs-cache-dir)))
+  (setq auto-save-file-name-transforms
+	`((".*" ,emacs-cache-dir t)))
+  (setq auto-save-list-file-prefix
+	emacs-cache-dir)
+
+  (setq undo-tree-history-directory-alist
+	`((".*" . ,emacs-cache-dir)))
+#+end_src
+
+* Org mode
+
+** General setup
+#+begin_src emacs-lisp
+  (setq org-directory "~/data/org/")
+  (setq org-agenda-files '("~/data/org/roam"))
+#+end_src
+
+** Org roam
+
+#+begin_src emacs-lisp
+  (use-package org-roam
+    :ensure t
+
+    :custom
+    (org-roam-directory (file-truename "~/data/org/roam"))
+
+    :config
+    (setq org-roam-node-display-template (concat "${title:*} " (propertize "${tags:10}" 'face 'org-tag)))
+    (org-roam-db-autosync-mode))
+#+end_src
+
+*** ~org-roam-dailies~
+
+#+begin_src emacs-lisp
+  (setq org-roam-dailies-directory "daily/")
+  (setq org-roam-dailies-capture-templates
+	`(("d" "default" entry
+	   "* %?"
+	   :target (file+head "%<%Y-%m-%d>.org"
+			      "#+title: %<%Y-%m-%d>\n"))))
+#+end_src
+
 
 * Modes
 
@@ -64,12 +118,41 @@ List files (respecting .gitignore):
 
   (use-package evil-leader
     :ensure t
+
     :config
     (global-evil-leader-mode)
+
     (evil-leader/set-leader "<SPC>")
     (evil-leader/set-key
       "fs" 'grep-find
-      "ff" 'run-fzf))
+      "ff" 'run-fzf
+
+      "t" 'todotxt-toggle
+
+      "hf" 'describe-function
+      "hv" 'describe-variable
+      "hk" 'describe-key
+
+      "nt" 'org-roam-buffer-toggle
+      "nf" 'org-roam-node-find
+      "ni" 'org-roam-node-insert
+
+      "dct" 'org-roam-dailies-capture-today
+      "dgt" 'org-roam-dailies-goto-today
+
+      "o" 'org-open-at-point)
+
+    (evil-define-key
+      'normal todotxt-mode-map
+      "h" 'describe-mode
+      "a" 'todotxt-add-item
+      "r" 'todotxt-add-priority
+      "e" 'todotxt-edit-item
+      "N" 'todotxt-nuke-item
+      "c" 'todotxt-complete-toggle))
+
+  (use-package meson-mode
+    :ensure t)
 
   (use-package evil-commentary
     :ensure t
@@ -85,25 +168,29 @@ List files (respecting .gitignore):
   (use-package fzf
     :ensure t)
 
+  (use-package flymake-shellcheck
+    :ensure t
+    :commands flymake-shellcheck-load
+    :init
+    (add-hook 'sh-mode-hook 'flymake-shellcheck-load))
+
+  (use-package flymake-cursor
+    :load-path "~/.config/emacs/lisp/emacs-flymake-cursor" ;; cloned repo path
+    :config
+    (flymake-cursor-mode))
+
   (use-package ivy
     :ensure t
     :config
     (ivy-mode))
 
-  ;;(use-package lsp-mode
-  ;;  :ensure t
-  ;;  :hook
-  ;;  (c++-mode . lsp)
-  ;;  :commands lsp
-  ;;  :config
-  ;;  (setq lsp-enable-symbol-highlighting nil))
-
-   (use-package eglot
-     :ensure t
-     :hook
-     (c++-mode . eglot-ensure)
-     :config
-     (setq eglot-ignored-server-capabilities '(:documentHighlightProvider)))
+  (use-package eglot
+    :ensure t
+    :hook
+    (c++-mode . eglot-ensure)
+    (c-mode . eglot-ensure)
+    :config
+    (setq eglot-ignored-server-capabilities '(:documentHighlightProvider)))
 
   (use-package grep
     :ensure t
@@ -113,23 +200,37 @@ List files (respecting .gitignore):
      '("rg -n -H --no-heading -e '' $(git rev-parse --show-superproject-working-tree || pwd)" . 27)))
 #+end_src
 
+** Misc packages
+
+*** Todo list
+#+begin_src emacs-lisp
+  (use-package todotxt
+    :ensure t
+    :config
+    (setq todotxt-file (expand-file-name "~/.todo/todo.txt")))
+#+end_src
+
+Helper function:
+#+begin_src emacs-lisp
+  (defun todotxt-toggle ()
+    (interactive)
+    (if (derived-mode-p 'todotxt-mode)
+	(todotxt-bury)
+	(todotxt)))
+#+end_src
+
+
 ** Helper functions
 #+begin_src emacs-lisp
+  ;; (defun get-git-repository ()
+  ;;   (shell-command-to-string "git rev-parse --show-superproject-working-tree")
+  ;;   )
+
   (defun run-fzf ()
     (interactive)
     (let ((process-environment
-	   (cons (concat "FZF_DEFAULT_COMMAND=rg --files --ignore -nH --no-heading")
+	   (cons (concat "FZF_DEFAULT_COMMAND=rg --files --ignore -nH --no-heading $(git rev-parse --show-superproject-working-tree || pwd)")
 		 process-environment)))
       (fzf/start default-directory #'fzf/action-find-file)))
 #+end_src
 
-
-** Theme
-#+begin_src emacs-lisp
-  (set-frame-font "Fira Code 12" nil t)
-  (load-theme 'modus-vivendi t)
-  ;; (use-package doom-themes
-  ;;   :ensure t
-  ;;   :config
-  ;;   (load-theme 'doom-gruvbox t))
-#+end_src
