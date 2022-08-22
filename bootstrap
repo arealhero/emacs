@@ -2,18 +2,25 @@
 
 set -e
 
-USAGE="usage: bootstrap [-fh]\n\t-f\tforce rebuild\n\t-p\treinstall packages\n\t-h\tprint help"
+die()
+{
+  echo "[FATAL] $1"
+  exit 1
+}
 
-while getopts fph flag
+USAGE="usage: bootstrap [-efh]\n\t-e\tbuild emacs\n\t-f\tforce action\n\t-p\treinstall packages\n\t-h\tprint help"
+
+while getopts efph flag
 do
   case $flag in
     f) force=1 ;;
-    p) packages=1 ;;
+    f) build_emacs=1 ;;
+    p) install_packages=1 ;;
     \? | h) echo -e "$USAGE"; exit 1 ;;
   esac
 done
 
-neat_dir="$HOME/.local/neat"
+neat_dir="${XDG_DATA_HOME-$HOME/.local}/neat"
 repos_dir="$neat_dir/repos"
 autobuilds_dir="$neat_dir/autobuilds"
 
@@ -21,76 +28,74 @@ repo="$repos_dir/emacs"
 build="$autobuilds_dir/emacs"
 prefix="$HOME/.local"
 
-# Clone repository if does not exist
-mkdir -p "$repos_dir"
-[ ! -d "$repo" ] && git clone --recursive git://git.savannah.gnu.org/emacs.git "$repo"
+if [ ! -z "$build_emacs" ]; then
+  # Clone repository if does not exist
+  mkdir -p "$repos_dir"
+  [ ! -d "$repo" ] && git clone --recursive git://git.savannah.gnu.org/emacs.git "$repo"
 
-# cd "$repo"
-# git pull
+  # Copy repository to autobuilds
+  mkdir -p "$autobuilds_dir"
+  if [ ! -d "$build" ] || [ ! -z "$force" ]; then
+    rm -rf "$build"
+    cp -r "$repo" "$build"
 
-# Copy repository to autobuilds
-mkdir -p "$autobuilds_dir"
-if [ ! -d "$build" ] || [ ! -z "$force" ]; then
-  rm -rf "$build"
-  cp -r "$repo" "$build"
+    # Preparing to build
+    # TODO: test dependencies:
+    #       json - libjasson-dev or something
+    #       png - libpng-dev
+    #       rsvg - librsvg-dev
+    cd "$build"
+    # git checkout emacs-28.1.90
 
-  # Preparing to build
-  # TODO: test dependencies:
-  #       json - libjasson-dev or something
-  #       png - libpng-dev
-  #       rsvg - librsvg-dev
-  cd "$build"
-  # git checkout emacs-28.1.90
+    # Remove misc junk
+    mv lisp/play/morse.el lisp/play/cookie1.el .
+    rm -rf lisp/play/*
+    mv morse.el cookie1.el lisp/play
+    # TODO:
+    #   Probably should remove various languages' support
+    #   like khmer.el{,c} and others
 
-  # Remove misc junk
-  mv lisp/play/morse.el lisp/play/cookie1.el .
-  rm -rf lisp/play/*
-  mv morse.el cookie1.el lisp/play
-  # TODO:
-  #   Probably should remove various languages' support
-  #   like khmer.el{,c} and others
-
-  ./autogen.sh
-  mkdir -p build
+    ./autogen.sh
+    mkdir -p build
 
 
-  # --without-all \
-  # Building
-  cd build
-  ../configure \
-    --prefix="$prefix" \
-    --with-json \
-    --with-mailutils \
-    --with-native-compilation \
-    --with-pgtk \
-    --with-png \
-    --with-rsvg \
-    --with-sound=no \
-    --with-tiff \
-    --with-xml2 \
-    --without-compress-install \
-    --without-m17n-flt \
-    --without-gpm \
-    --without-libotf
-  make -j"$(nproc)"
+    # --without-all \
+    # Building
+    cd build
+    ../configure \
+      --prefix="$prefix" \
+      --with-json \
+      --with-mailutils \
+      --with-native-compilation \
+      --with-pgtk \
+      --with-png \
+      --with-rsvg \
+      --with-sound=no \
+      --with-tiff \
+      --with-xml2 \
+      --without-compress-install \
+      --without-m17n-flt \
+      --without-gpm \
+      --without-libotf
+    make -j"$(nproc)"
 
-  # TODO: testing
+    # TODO: testing
 
-  # Installing
-  mkdir -p "$prefix"
-  make install
+    # Installing
+    mkdir -p "$prefix"
+    make install
+
+    [ -d "$HOME/.emacs.d" ] && rm -rf "$HOME/.emacs.d"
+  fi
 fi
 
 
 # Install packages
-[ -d "$HOME/.emacs.d" ] && rm -rf "$HOME/.emacs.d"
-
-if [ "$packages" ] || [ ! -d "$HOME/.config/emacs" ];
+if [ "$install_packages" ];
 then
-  cd "$HOME/.config" # TODO: XDG
-  rm -rf emacs
-  git clone https://github.com/arealhero/emacs.git
-  cd emacs
+  [ -d "$XDG_CONFIG_HOME/emacs" ] || die "$XDG_CONFIG_HOME/emacs does not exists"
+
+  cd "$XDG_CONFIG_HOME/emacs"
   emacs --batch -l init.el
 fi
 
