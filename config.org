@@ -1,8 +1,8 @@
 #+TITLE: Emacs configuration
 #+AUTHOR: Vladislav Sharshukov
 
-* Personal informa
-tion
+* Personal information
+
 #+begin_src emacs-lisp
   (setq user-full-name "Vladislav Sharshukov"
 	user-mail-address "vsharshukov@gmail.com")
@@ -11,7 +11,22 @@ tion
 * Theme
 #+begin_src emacs-lisp
   (set-frame-font "Fira Code 14" nil t)
-  (load-theme 'modus-operandi t)
+  (load-theme 'modus-vivendi)
+  ;; (use-package gruvbox-theme
+  ;;   :ensure t
+  ;;   :config
+  ;;   (load-theme 'gruvbox-hard t))
+#+end_src
+
+** Modeline customization
+
+#+begin_src emacs-lisp
+  (use-package diminish
+    :ensure t
+    :config
+    (eval-after-load "ivy" '(diminish 'ivy-mode))
+    (eval-after-load "evil-commentary" '(diminish 'evil-commentary-mode))
+    (eval-after-load "undo-tree" '(diminish 'undo-tree-mode)))
 #+end_src
 
 See [[https://libredd.it/r/emacs/comments/l42oep/comment/gkmnh3y/][this comment]].
@@ -20,22 +35,11 @@ See [[https://libredd.it/r/emacs/comments/l42oep/comment/gkmnh3y/][this comment]
   (setq native-comp-async-report-warnings-errors nil)
 #+end_src
 
-See [[https://libreddit.tiekoetter.com/r/emacs/comments/8pfdlb/weird_shifting_problem_with_new_emacs_line_numbers/][this thread]].
-#+begin_src emacs-lisp
-  (setq display-line-numbers-width-start t)
-#+end_src
-
 * Custom settings
 #+begin_src emacs-lisp
   (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
   (load custom-file)
 #+end_src
-
-List files (respecting .gitignore):
-#+begin_src sh
-  rg --files -nH --no-heading $(git rev-parse --show-superproject-working-tree)
-#+end_src
-
 
 ** Scrolling behaviour
 #+begin_src emacs-lisp
@@ -47,13 +51,18 @@ List files (respecting .gitignore):
 #+begin_src emacs-lisp
   (setq confirm-kill-emacs nil)
 
-  (global-display-line-numbers-mode 1)
+  ;; (global-display-line-numbers-mode 1)
   (setq display-line-numbers-type 'relative)
+#+end_src
+
+See [[https://libreddit.tiekoetter.com/r/emacs/comments/8pfdlb/weird_shifting_problem_with_new_emacs_line_numbers/][this thread]].
+#+begin_src emacs-lisp
+  (setq display-line-numbers-width-start t)
 #+end_src
 
 ** Backup & autosave files
 
-By default Emacs creates backup files (e.g. ~test.c\~~) and autosave files (e.g. ~#test.c#~) in the same directory
+By default Emacs creates backup files (e.g. ~test.c~~) and autosave files (e.g. ~#test.c#~) in the same directory
 the file belongs to. The next code block moves those files to the separate directory.
 
 #+begin_src emacs-lisp
@@ -71,12 +80,122 @@ the file belongs to. The next code block moves those files to the separate direc
 	`((".*" . ,emacs-cache-dir)))
 #+end_src
 
+** Calendar & diary customization
+
+#+begin_src emacs-lisp
+  (setq calendar-mark-diary-entries-flag t)
+  (setq calendar-mark-holidays-flag t)
+  (setq calendar-mode-line-format nil)
+  (setq calendar-time-display-form
+	'(24-hours ":" minutes
+		   (when time-zone
+		     (format "(%s)" time-zone))))
+  (setq calendar-week-start-day 1)      ; Monday
+  (setq calendar-date-style 'iso)
+  (setq calendar-date-display-form calendar-iso-date-display-form)
+  (setq calendar-time-zone-style 'numeric)
+
+  (setq diary-comment-start ";;")
+  (setq diary-comment-end "")
+  (setq diary-display-function #'diary-fancy-display)
+#+end_src
+
+*** Events' marks
+#+begin_src emacs-lisp
+  (defface arealhero-diary-calendar-uni-mark
+    '((((class color) (min-colors 88) (background light))
+       :background "#fff1f0" :foreground "#a60000")
+      (((class color) (min-colors 88) (background dark))
+       :background "#2c0614" :foreground "#ff8059")
+      (t :foreground "red"))
+    "Face to mark university's tasks/events in the calendar.")
+
+  (defface arealhero-diary-calendar-administrative-mark
+    '((((class color) (min-colors 88) (background light))
+       :background "#fff3da" :foreground "#813e00")
+      (((class color) (min-colors 88) (background dark))
+       :background "#221000" :foreground "#eecc00")
+      (t :foreground "yellow"))
+    "Face to mark administrative tasks in the calendar.")
+
+  (defface arealhero-diary-calendar-event-mark
+    '((((class color) (min-colors 88) (background light))
+       :background "#aceaac" :foreground "#004c00")
+      (((class color) (min-colors 88) (background dark))
+       :background "#00422a" :foreground "#9ff0cf")
+      (t :foreground "green"))
+    "Face to mark events in the calendar.")
+
+  (defface arealhero-diary-calendar-misc-mark
+    '((((class color) (min-colors 88) (background light))
+       :background "#f0f0f0" :foreground "#505050")
+      (((class color) (min-colors 88) (background dark))
+       :background "#191a1b" :foreground "#a8a8a8")
+      (t :inherit shadow))
+    "Face to mark misc tasks in the calendar.")
+#+end_src
+
 * Org mode
 
 ** General setup
 #+begin_src emacs-lisp
   (setq org-directory "~/data/org/")
-  (setq org-agenda-files '("~/data/org/roam"))
+  (setq org-agenda-files (directory-files-recursively "~/data/org" "\\.org$"))
+  (setq org-attach-use-inheritance t)
+#+end_src
+
+** Customization
+
+#+begin_src emacs-lisp
+  (font-lock-add-keywords 'org-mode
+			  '(("^ *\\([-]\\) "
+			     (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
+  (use-package org-bullets
+    :ensure t
+    :config
+    (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
+
+  (setq org-hide-emphasis-markers t)
+
+  ;; (let* ((variable-tuple
+  ;; 	(cond ((x-list-fonts "ETBembo")         '(:font "ETBembo"))
+  ;; 	      ((x-list-fonts "Source Sans Pro") '(:font "Source Sans Pro"))
+  ;; 	      ((x-list-fonts "Lucida Grande")   '(:font "Lucida Grande"))
+  ;; 	      ((x-list-fonts "Verdana")         '(:font "Verdana"))
+  ;; 	      ((x-family-fonts "Sans Serif")    '(:family "Sans Serif"))
+  ;; 	      (nil (warn "Cannot find a Sans Serif Font.  Install Source Sans Pro."))))
+  ;;        (base-font-color     (face-foreground 'default nil 'default))
+  ;;        (headline           `(:inherit default :weight bold :foreground ,base-font-color)))
+  ;;   (custom-theme-set-faces
+  ;;    'user
+  ;;    `(org-level-8 ((t (,@headline ,@variable-tuple))))
+  ;;    `(org-level-7 ((t (,@headline ,@variable-tuple))))
+  ;;    `(org-level-6 ((t (,@headline ,@variable-tuple))))
+  ;;    `(org-level-5 ((t (,@headline ,@variable-tuple))))
+  ;;    `(org-level-4 ((t (,@headline ,@variable-tuple :height 1.1))))
+  ;;    `(org-level-3 ((t (,@headline ,@variable-tuple :height 1.25))))
+  ;;    `(org-level-2 ((t (,@headline ,@variable-tuple :height 1.5))))
+  ;;    `(org-level-1 ((t (,@headline ,@variable-tuple :height 1.75))))
+  ;;    `(org-document-title ((t (,@headline ,@variable-tuple :height 2.0 :underline nil))))))
+
+  ;; (custom-theme-set-faces
+  ;;  'user
+  ;;  '(variable-pitch ((t (:family "Source Sans Pro" :height 180))))
+  ;;  ;; '(variable-pitch ((t (:family "Source Sans Pro" :height 180 :weight thin))))
+  ;;  '(fixed-pitch ((t ( :family "Fira Code 14" :height 160)))))
+
+  ;; (add-hook 'org-mode-hook 'variable-pitch-mode)
+  ;; (add-hook 'org-mode-hook 'visual-line-mode)
+#+end_src
+
+** Setting default applications
+#+begin_src emacs-lisp
+  ;; PDFs visited in Org-mode are opened in Evince (and not in the default choice) https://stackoverflow.com/a/8836108/789593
+  (add-hook 'org-mode-hook
+	    #'(lambda ()
+		(delete '("\\.pdf\\'" . default) org-file-apps)
+		(add-to-list 'org-file-apps '("\\.pdf\\'" . "zathura %s"))
+		(add-to-list 'org-file-apps '("\\.djvu\\'" . "zathura %s"))))
 #+end_src
 
 ** Org roam
@@ -108,13 +227,20 @@ the file belongs to. The next code block moves those files to the separate direc
 * Modes
 
 ** Evil mode
+
 #+begin_src emacs-lisp
   (use-package evil
     :ensure t
+
     :init
     (setq evil-want-C-u-scroll t)
+
     :config
-    (evil-mode))
+    (evil-mode)
+
+    (evil-define-key
+      'normal org-mode-map
+      (kbd "<tab>") 'org-cycle))
 
   (use-package evil-leader
     :ensure t
@@ -127,7 +253,7 @@ the file belongs to. The next code block moves those files to the separate direc
       "fs" 'grep-find
       "ff" 'run-fzf
 
-      "t" 'todotxt-toggle
+      "st" 'display-current-time
 
       "hf" 'describe-function
       "hv" 'describe-variable
@@ -140,24 +266,23 @@ the file belongs to. The next code block moves those files to the separate direc
       "dct" 'org-roam-dailies-capture-today
       "dgt" 'org-roam-dailies-goto-today
 
+      "gb" 'ivy-switch-buffer
+
       "o" 'org-open-at-point)
 
-    (evil-define-key
-      'normal todotxt-mode-map
-      "h" 'describe-mode
-      "a" 'todotxt-add-item
-      "r" 'todotxt-add-priority
-      "e" 'todotxt-edit-item
-      "N" 'todotxt-nuke-item
-      "c" 'todotxt-complete-toggle))
-
-  (use-package meson-mode
-    :ensure t)
+    (evil-leader/set-key-for-mode 'org-mode
+      "il" 'org-insert-link
+      "aa" 'org-attach-attach))
 
   (use-package evil-commentary
     :ensure t
     :config
     (evil-commentary-mode))
+#+end_src
+
+#+begin_src emacs-lisp
+  (use-package meson-mode
+    :ensure t)
 
   (use-package undo-tree
     :ensure t
@@ -197,40 +322,20 @@ the file belongs to. The next code block moves those files to the separate direc
     :config
     (grep-apply-setting
      'grep-find-command
-     '("rg -n -H --no-heading -e '' $(git rev-parse --show-superproject-working-tree || pwd)" . 27)))
+     '("rgp ''" . 6)))
 #+end_src
-
-** Misc packages
-
-*** Todo list
-#+begin_src emacs-lisp
-  (use-package todotxt
-    :ensure t
-    :config
-    (setq todotxt-file (expand-file-name "~/.todo/todo.txt")))
-#+end_src
-
-Helper function:
-#+begin_src emacs-lisp
-  (defun todotxt-toggle ()
-    (interactive)
-    (if (derived-mode-p 'todotxt-mode)
-	(todotxt-bury)
-	(todotxt)))
-#+end_src
-
 
 ** Helper functions
 #+begin_src emacs-lisp
-  ;; (defun get-git-repository ()
-  ;;   (shell-command-to-string "git rev-parse --show-superproject-working-tree")
-  ;;   )
-
   (defun run-fzf ()
     (interactive)
     (let ((process-environment
-	   (cons (concat "FZF_DEFAULT_COMMAND=rg --files --ignore -nH --no-heading $(git rev-parse --show-superproject-working-tree || pwd)")
+	   (cons (concat "FZF_DEFAULT_COMMAND=rgf")
 		 process-environment)))
       (fzf/start default-directory #'fzf/action-find-file)))
+
+  (defun display-current-time ()
+    (interactive)
+    (message (format-time-string "%Y-%m-%d %H:%M:%S")))
 #+end_src
 
