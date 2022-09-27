@@ -4,8 +4,8 @@
   (scroll-bar-mode -1)
   (tooltip-mode -1))
 
-(setq inhibit-startup-message t)
-(setq initial-scratch-message "")
+(setq inhibit-startup-message t
+      initial-scratch-message "")
 
 ;; Hide advertisement from minibuffer
 (defun display-startup-echo-area-message ()
@@ -32,4 +32,9 @@
 (require 'diminish)
 (require 'bind-key)
 
-(org-babel-load-file (concat user-emacs-directory "config.org"))
+(defun vlad/load-config-file (filename)
+  (load-file (expand-file-name filename user-emacs-directory)))
+
+(vlad/load-config-file "utils.el")
+(vlad/load-config-file "config.el")
+(vlad/load-config-file "custom.el")

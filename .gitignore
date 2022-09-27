@@ -1,13 +1,22 @@
-/config.el
-/elpa/
-/auto-save-list/
-/eln-cache/
+elpa/
+auto-save-list/
+eln-cache/
+.cache/
+eshell/
+
+persp-confs/
+projectile-bookmarks.eld
+transient/
+timetable/
 
 *~
+
+custom.el
 
 .org-id-locations
 bookmarks
 org-roam.db
 
 diary
+projects
 

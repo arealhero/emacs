@@ -1,3 +1,0 @@
-[submodule "lisp/emacs-flymake-cursor"]
-	path = lisp/emacs-flymake-cursor
-	url = https://github.com/akash-akya/emacs-flymake-cursor
