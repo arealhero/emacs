@@ -508,43 +508,133 @@
 (setq undo-tree-history-directory-alist
       `((".*" . ,vlad/emacs-cache-dir)))
 
-(defun vlad/sync-org-agenda-files ()
-  "Syncronize org-agenda-files."
-  (interactive)
-  (setq org-agenda-files (directory-files-recursively vlad/org-directory "\\.org$")))
-
-(setq org-directory vlad/org-directory
-      org-attach-use-inheritance t
-      org-hide-emphasis-markers nil
-      org-startup-indented t
-      org-confirm-babel-evaluate nil
-      org-deadline-warning-days 0)
-
-(vlad/sync-org-agenda-files)
-
-;; PDFs visited in Org-mode are opened in zathura (and not in the default choice).
-;; See https://stackoverflow.com/a/8836108/789593
-(add-hook 'org-mode-hook
-	  #'(lambda ()
-	      (delete '("\\.pdf\\'" . default) org-file-apps)
-	      (delete '("\\.djvu\\'" . default) org-file-apps)
-	      (add-to-list 'org-file-apps '("\\.pdf\\'" . "zathura %s"))
-	      (add-to-list 'org-file-apps '("\\.djvu\\'" . "zathura %s"))
-
-	      (delete '("\\.webm\\'" . default) org-file-apps)
-	      (delete '("\\.mkv\\'" . default) org-file-apps)
-	      (add-to-list 'org-file-apps '("\\.webm\\'" . "mpv --speed=1.75 --fs %s"))
-	      (add-to-list 'org-file-apps '("\\.mkv\\'" . "mpv --speed=1.75 --fs %s"))))
-
-(add-hook 'org-mode-hook 'turn-on-auto-fill)
-(add-hook 'org-mode-hook #'(lambda ()
-                             (setq fill-column 80)))
-
 (use-package evil-commentary
   :straight t
   :diminish
   :hook
   (after-init . evil-commentary-mode))
+
+(use-package org
+  :defer t
+  :straight `(org
+              :fork (:host nil
+                           :repo "https://git.tecosaur.net/tec/org-mode.git"
+                           :branch "dev"
+                           :remote "tecosaur")
+              :files (:defaults "etc")
+              :build t
+              :pre-build
+              (with-temp-file "org-version.el"
+                (require 'lisp-mnt)
+                (let ((version
+                       (with-temp-buffer
+                         (insert-file-contents "lisp/org.el")
+                         (lm-header "version")))
+                      (git-version
+                       (string-trim
+                        (with-temp-buffer
+                          (call-process "git" nil t nil "rev-parse" "--short" "HEAD")
+                          (buffer-string)))))
+                  (insert
+                   (format "(defun org-release () \"The release version of Org.\" %S)\n" version)
+                   (format "(defun org-git-version () \"The truncate git commit hash of Org mode.\" %S)\n" git-version)
+                   "(provide 'org-version)\n")))
+              :pin nil)
+
+  :commands (org-previous-visible-heading org-set-property)
+  :custom (org-todo-keywords
+           '((sequence "TODO(t)" "IN_ASSESSMENT(a)" "IN_PROGRESS(p)" "|" "DONE(d)" "WONTFIX(w)" "DROPPED(D)" "BACKLOG(b)")))
+  :general-config
+  (general-def 'normal org-mode-map
+   :prefix "SPC"
+   "aa" 'org-attach-attach
+   "c" 'org-ctrl-c-ctrl-c
+   "il" 'org-insert-link
+   "lt" 'vlad/org-log-current-time
+   "oo" 'org-open-at-point
+   "t" 'org-todo)
+
+  (general-def 'normal org-mode-map
+   "C-k" 'org-timestamp-up
+   "C-j" 'org-timestamp-down)
+
+  :config
+  (defun vlad/get-current-time-string ()
+    "Get current time as string."
+    (interactive)
+    (format-time-string "%H:%M:%S" (current-time)))
+
+  (defun vlad/org-log-current-time ()
+    "Add current time to the nearest header."
+    (interactive)
+    (let ((saved-position (point)))
+      (org-previous-visible-heading 1)
+      (org-set-property "TIME" (vlad/get-current-time-string))
+      (goto-char saved-position)))
+
+  (defun vlad/sync-org-agenda-files ()
+    "Syncronize org-agenda-files."
+    (interactive)
+    (setq org-agenda-files (directory-files-recursively vlad/org-directory "\\.org$")))
+
+  (setq org-directory vlad/org-directory
+        org-attach-use-inheritance t
+        org-hide-emphasis-markers nil
+        org-startup-indented t
+        org-confirm-babel-evaluate nil
+        org-deadline-warning-days 0)
+
+  (vlad/sync-org-agenda-files)
+
+  ;; PDFs visited in Org-mode are opened in zathura (and not in the default choice).
+  ;; See https://stackoverflow.com/a/8836108/789593
+  (add-hook 'org-mode-hook
+	    #'(lambda ()
+	        (delete '("\\.pdf\\'" . default) org-file-apps)
+	        (delete '("\\.djvu\\'" . default) org-file-apps)
+	        (add-to-list 'org-file-apps '("\\.pdf\\'" . "zathura %s"))
+	        (add-to-list 'org-file-apps '("\\.djvu\\'" . "zathura %s"))
+
+	        (delete '("\\.webm\\'" . default) org-file-apps)
+	        (delete '("\\.mkv\\'" . default) org-file-apps)
+	        (add-to-list 'org-file-apps '("\\.webm\\'" . "mpv --speed=1.75 --fs %s"))
+	        (add-to-list 'org-file-apps '("\\.mkv\\'" . "mpv --speed=1.75 --fs %s"))))
+
+  (add-hook 'org-mode-hook 'turn-on-auto-fill)
+  (add-hook 'org-mode-hook #'(lambda ()
+                               (setq fill-column 80)))
+
+  ;; Increase preview width
+  (plist-put org-latex-preview-appearance-options
+             :page-width 0.8)
+
+  (setq org-latex-packages-alist '())
+  (add-to-list 'org-latex-packages-alist '("" "amssymb" t))
+  (add-to-list 'org-latex-packages-alist '("" "amsmath" t))
+
+  ;; Use dvisvgm to generate previews
+  ;; You don't need this, it's the default:
+  (setq org-latex-preview-process-default 'dvisvgm)
+
+  ;; Turn on auto-mode, it's built into Org and much faster/more featured than
+  ;; org-fragtog. (Remember to turn off/uninstall org-fragtog.)
+  (add-hook 'org-mode-hook 'org-latex-preview-auto-mode)
+
+  ;; Block C-n and C-p from opening up previews when using auto-mode
+  (add-hook 'org-latex-preview-auto-ignored-commands 'next-line)
+  (add-hook 'org-latex-preview-auto-ignored-commands 'previous-line)
+
+  ;; Enable consistent equation numbering
+  (setq org-latex-preview-numbered t)
+
+  ;; Bonus: Turn on live previews.  This shows you a live preview of a LaTeX
+  ;; fragment and updates the preview in real-time as you edit it.
+  ;; To preview only environments, set it to '(block edit-special) instead
+  (setq org-latex-preview-live nil)
+
+  ;; More immediate live-previews -- the default delay is 1 second
+  (setq org-latex-preview-live-debounce 0.25)
+  )
 
 (use-package elfeed
   :straight t
@@ -620,96 +710,6 @@ Note that this function requires that `elfeed-search-remain-on-entry' is not nil
     (interactive)
     (elfeed-search-quit-window)
     (vlad/elfeed-search-toggle-unread))
-  ) ;; use-package
-
-(defun vlad/get-current-time-string ()
-  "Get current time as string."
-  (interactive)
-  (format-time-string "%H:%M:%S" (current-time)))
-
-(use-package org
-  :defer t
-  :straight `(org
-              :fork (:host nil
-                           :repo "https://git.tecosaur.net/tec/org-mode.git"
-                           :branch "dev"
-                           :remote "tecosaur")
-              :files (:defaults "etc")
-              :build t
-              :pre-build
-              (with-temp-file "org-version.el"
-                (require 'lisp-mnt)
-                (let ((version
-                       (with-temp-buffer
-                         (insert-file-contents "lisp/org.el")
-                         (lm-header "version")))
-                      (git-version
-                       (string-trim
-                        (with-temp-buffer
-                          (call-process "git" nil t nil "rev-parse" "--short" "HEAD")
-                          (buffer-string)))))
-                  (insert
-                   (format "(defun org-release () \"The release version of Org.\" %S)\n" version)
-                   (format "(defun org-git-version () \"The truncate git commit hash of Org mode.\" %S)\n" git-version)
-                   "(provide 'org-version)\n")))
-              :pin nil)
-
-  :commands (org-previous-visible-heading org-set-property)
-  :custom (org-todo-keywords
-           '((sequence "TODO(t)" "IN_ASSESSMENT(a)" "IN_PROGRESS(p)" "|" "DONE(d)" "WONTFIX(w)" "DROPPED(D)" "BACKLOG(b)")))
-  :general-config
-  (general-def 'normal org-mode-map
-   :prefix "SPC"
-   "aa" 'org-attach-attach
-   "c" 'org-ctrl-c-ctrl-c
-   "il" 'org-insert-link
-   "lt" 'vlad/org-log-current-time
-   "oo" 'org-open-at-point
-   "t" 'org-todo)
-
-  (general-def 'normal org-mode-map
-   "C-k" 'org-timestamp-up
-   "C-j" 'org-timestamp-down)
-
-  :config
-  (defun vlad/org-log-current-time ()
-    "Add current time to the nearest header."
-    (interactive)
-    (let ((saved-position (point)))
-      (org-previous-visible-heading 1)
-      (org-set-property "TIME" (vlad/get-current-time-string))
-      (goto-char saved-position)))
-
-  ;; Increase preview width
-  (plist-put org-latex-preview-appearance-options
-             :page-width 0.8)
-
-  (setq org-latex-packages-alist '())
-  (add-to-list 'org-latex-packages-alist '("" "amssymb" t))
-  (add-to-list 'org-latex-packages-alist '("" "amsmath" t))
-
-  ;; Use dvisvgm to generate previews
-  ;; You don't need this, it's the default:
-  (setq org-latex-preview-process-default 'dvisvgm)
-
-  ;; Turn on auto-mode, it's built into Org and much faster/more featured than
-  ;; org-fragtog. (Remember to turn off/uninstall org-fragtog.)
-  (add-hook 'org-mode-hook 'org-latex-preview-auto-mode)
-
-  ;; Block C-n and C-p from opening up previews when using auto-mode
-  (add-hook 'org-latex-preview-auto-ignored-commands 'next-line)
-  (add-hook 'org-latex-preview-auto-ignored-commands 'previous-line)
-
-  ;; Enable consistent equation numbering
-  (setq org-latex-preview-numbered t)
-
-  ;; Bonus: Turn on live previews.  This shows you a live preview of a LaTeX
-  ;; fragment and updates the preview in real-time as you edit it.
-  ;; To preview only environments, set it to '(block edit-special) instead
-  (setq org-latex-preview-live nil)
-
-  ;; More immediate live-previews -- the default delay is 1 second
-  (setq org-latex-preview-live-debounce 0.25)
   )
 
 (use-package elfeed-org
@@ -825,16 +825,17 @@ Note that this function requires that `elfeed-search-remain-on-entry' is not nil
 ;; https://github.com/fxbois/web-mode
 (use-package web-mode
   :straight t
-  :defer t)
+  :defer t
+  :config
+  (defun vlad/web-mode-hook ()
+    "Hooks for web-mode."
+    (setq web-mode-markup-indent-offset 2)
+    (setq web-mode-code-indent-offset 2))
+  (add-hook 'web-mode-hook 'vlad/web-mode-hook)
 
-(defun vlad/web-mode-hook ()
-  "Hooks for web-mode."
-  (setq web-mode-markup-indent-offset 2)
-  (setq web-mode-code-indent-offset 2))
-(add-hook 'web-mode-hook 'vlad/web-mode-hook)
-
-(add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
-(add-to-list 'auto-mode-alist '("\\.js\\'" . web-mode))
+  (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
+  (add-to-list 'auto-mode-alist '("\\.js\\'" . web-mode))
+  )
 
 ;; https://github.com/smihica/emmet-mode
 (use-package emmet-mode
