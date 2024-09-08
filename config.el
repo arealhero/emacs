@@ -857,10 +857,6 @@ Note that this function requires that `elfeed-search-remain-on-entry' is not nil
   (setq-default hippie-expand-try-functions-list
                 '(yas-hippie-try-expand emmet-expand-line)))
 
-(use-package meson-mode
-  :straight t
-  :defer t)
-
 (use-package yaml-mode
   :straight t
   :defer t)
@@ -872,11 +868,6 @@ Note that this function requires that `elfeed-search-remain-on-entry' is not nil
   :config
   (global-undo-tree-mode)
   (evil-set-undo-system 'undo-tree))
-
-;;; Docker
-
-(use-package dockerfile-mode
-  :straight t)
 
 (provide 'config)
 ;;; config.el ends here
