@@ -349,7 +349,7 @@
   :after tree-sitter
   :straight t)
 
-(setq treesit-language-source-alist
+(setq-default treesit-language-source-alist
   '((bash "https://github.com/tree-sitter/tree-sitter-bash")
     (c "https://github.com/tree-sitter/tree-sitter-c")
     ;; (cmake "https://github.com/uyha/tree-sitter-cmake")
@@ -476,8 +476,8 @@
 (setq-default electric-pair-inhibit-predicate 'electric-pair-conservative-inhibit)
 
 ;; See https://libredd.it/r/emacs/comments/l42oep/comment/gkmnh3y/
-(setq comp-async-report-warnings-errors nil)
-(setq native-comp-async-report-warnings-errors nil)
+(setq-default comp-async-report-warnings-errors nil)
+(setq-default native-comp-async-report-warnings-errors nil)
 
 (setq scroll-margin 5
       scroll-step 1
