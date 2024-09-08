@@ -1,0 +1,882 @@
+;;; Code:
+
+;; Personal information
+(setq user-full-name "Vladislav Sharshukov"
+      user-mail-address "vsharshukov@gmail.com")
+
+(defconst xdg/cache-home (getenv "XDG_CACHE_HOME"))
+(defconst xdg/data-dir (getenv "XDG_DATA_DIR")) ;; TODO: this is not XDG's
+
+(defconst vlad/org-directory (expand-file-name "org" xdg/data-dir))
+
+(defalias 'yes-or-no-p 'y-or-n-p)
+
+(setq sentence-end-double-space nil)
+
+;; Reference: https://emacs.stackexchange.com/questions/28121/osx-switching-to-virtual-desktop-doesnt-focus-emacs/28296#28296
+(menu-bar-mode t)
+(global-hl-line-mode 1)
+
+(setq-default fill-column 120)
+(global-display-fill-column-indicator-mode)
+(column-number-mode)
+
+(use-package ivy
+  :straight t
+  :diminish
+  :hook
+  (after-init . ivy-mode)
+)
+
+(use-package exec-path-from-shell
+  :straight t
+  :config
+  (when (memq window-system '(mac ns x))
+    (exec-path-from-shell-initialize)))
+
+;; (add-to-list 'exec-path "$HOME/.nix-profile/bin")
+
+(global-auto-revert-mode)
+
+(use-package hideshow
+  :straight t
+  :diminish
+  :hook
+  (c++-mode . hs-minor-mode)
+  :config
+  (add-hook 'hs-minor-mode-hook
+	    (lambda () (diminish 'hs-minor-mode))))
+
+(display-battery-mode 1)
+(setq-default display-time-24hr-format t
+              display-time-day-and-date t)
+(display-time-mode 1)
+
+(setq mac-option-modifier 'meta)
+
+(setq-default delete-by-moving-to-trash nil
+              magit-delete-by-moving-to-trash nil)
+
+(setq ring-bell-function 'ignore)
+
+;; Indentation settings
+(setq standard-indent 2)
+(add-hook 'c++-mode-hook
+          (lambda ()
+            (setq-default standard-indent 4
+                          c-basic-offset 4)
+            (setq c-basic-offset 4)))
+
+(setq-default indent-tabs-mode nil)
+
+(vlad/load-config-file "ya.el")
+
+;; --- themes ---
+
+(use-package lambda-themes
+  :straight (:type git :host github :repo "lambda-emacs/lambda-themes")
+  :custom
+  (lambda-themes-set-italic-comments nil)
+  (lambda-themes-set-italic-keywords nil)
+  (lambda-themes-set-variable-pitch nil))
+
+(use-package spacemacs-theme
+  :straight t)
+
+(use-package doom-themes
+  :straight t
+  :config
+  (setq doom-themes-enable-italic nil))
+
+(use-package vscode-dark-plus-theme
+  :straight t)
+
+(set-frame-font "Fira Code 18" nil t)
+(set-face-italic 'italic nil) ;; Looks bad
+
+(defun vlad/set-theme (theme)
+  "Load and enable the THEME and disable other themes."
+  ;; NOTE: interactive theme selection & its subsequent validation
+  ;;       was stolen from `load-theme' source code.
+  (interactive
+   (list (intern (completing-read "Theme: "
+                                  (mapcar #'symbol-name
+                                          (custom-available-themes))))))
+  (unless (custom-theme-name-valid-p theme)
+    (error "Invalid theme name `%s'" theme))
+
+  (dolist (enabled-theme custom-enabled-themes)
+    (disable-theme enabled-theme))
+  (load-theme theme 't))
+
+(vlad/set-theme 'doom-one)
+
+;; (setq-default truncate-lines t)
+(use-package evil
+  :straight t
+  :init
+  (setq evil-want-C-u-scroll t
+        evil-respect-visual-line-mode t
+        evil-search-module 'evil-search)
+  (global-visual-line-mode)
+  :config
+  (evil-mode))
+
+(evil-define-operator vlad/clang-format-region (beg end)
+  :move-point nil
+  :type line
+  (evil-ensure-column
+    (save-restriction
+      (goto-char beg)
+      (clang-format-region beg end)
+      (evil-force-normal-state))))
+
+;; Documentation: https://github.com/noctuid/general.el
+(use-package general
+  :straight t
+  :config
+
+  (general-evil-setup)
+
+  (general-def
+    "<escape>" 'keyboard-escape-quit)
+
+  (general-def 'ivy-mode-map
+    "M-v" 'yank
+    "C-w" 'ivy-backward-kill-word
+    "C-ц" 'ivy-backward-kill-word
+    "C-j" 'ivy-immediate-done)
+
+  (general-def 'insert
+    "M-v" 'yank
+    "C-ц" 'evil-delete-backward-word)
+
+  (general-def 'insert web-mode-map
+    "TAB" 'hippie-expand)
+
+  (general-def 'normal
+   :prefix "SPC"
+   "dt" 'org-roam-dailies-goto-today
+   "dy" 'org-roam-dailies-goto-yesterday
+
+   "e" 'elfeed
+
+   "fs" 'grep-find
+
+   "gb" 'ivy-switch-buffer
+   "gg" 'magit
+
+   "hf" 'describe-function
+   "hk" 'describe-key
+   "hv" 'describe-variable
+   "hm" 'describe-mode
+
+   "lh" 'lsp-inlay-hints-mode
+
+   "mt" 'tab-bar-move-window-to-tab
+
+   "nf" 'org-roam-node-find
+   "ni" 'org-roam-node-insert
+   "nt" 'org-roam-buffer-toggle
+
+   "oa" 'org-agenda
+
+   "oc" 'vlad/open-config
+
+   "op" 'vlad/open-plan
+   "ot" 'vlad/open-todo
+
+   "pa" 'projectile-add-known-project
+   "pc" 'projectile-compile-project
+   "pd" 'projectile-remove-known-project
+   "pi" 'projectile-invalidate-cache
+   "pp" 'projectile-switch-project
+   "pv" (lambda () (interactive) (dired "."))
+
+   "ro" 'citar-open
+
+   "ht" 'vlad/set-theme
+
+   "up" 'vlad/update-packages
+
+   "ya" 'ya/open-in-arcadia
+   "ycf" 'ya/copy-file-name
+   "ycc" (lambda () (interactive) (ya/copy-file-name :as-c++-include t))
+   "ycp" (lambda () (interactive) (ya/copy-file-name :as-python-import-from t))
+   "ycP" (lambda () (interactive) (ya/copy-file-name :as-python-import t))
+   "ytf" (lambda () (interactive) (ya/for-each-test 'toggle))
+   "ytc" (lambda () (interactive) (ya/for-each-test 'close))
+   "yto" (lambda () (interactive) (ya/for-each-test 'open))
+
+   "<" 'ivy-switch-buffer
+
+   "SPC" 'projectile-find-file)
+
+  (general-def 'visual
+    "M-v" 'yank)
+
+  (general-def 'normal
+    "C-S-j" 'vlad/font-dec
+    "C-О" 'vlad/font-dec
+    "C-S-k" 'vlad/font-inc
+    "C-Л" 'vlad/font-inc
+    "M-v" 'yank
+    "M-n" 'evil-buffer-new
+
+    "]g" 'flycheck-next-error
+    "[g" 'flycheck-previous-error)
+
+  (general-def 'normal profiler-report-mode-map
+    "TAB" 'profiler-report-toggle-entry)
+
+  (general-def 'normal xref--xref-buffer-mode-map
+    "RET" 'xref-show-location-at-point)
+
+  (general-def 'normal org-mode-map
+    "TAB" 'org-cycle)
+
+  (general-def 'normal org-mode-map
+    :prefix "SPC"
+    "ri" 'citar-insert-citation)
+
+  (general-def 'normal dired-mode-map
+    "0" 'evil-beginning-of-line
+    "$" 'evil-end-of-line
+
+    "-" 'dired-up-directory
+
+    "gg" (lambda () (interactive) (goto-line (point-min)))
+    "G" (lambda () (interactive) (goto-line (point-max)))
+    "gt" 'tab-bar-switch-to-next-tab
+    "gT" 'tab-bar-switch-to-prev-tab
+
+    "w" 'evil-forward-word-begin)
+
+  (general-def 'normal dired-mode-map
+    :prefix "SPC"
+    "dt" 'org-roam-dailies-goto-today
+
+    "hf" 'describe-function
+    "hk" 'describe-key
+    "hv" 'describe-variable
+    "hm" 'describe-mode
+
+    "mt" 'tab-bar-move-window-to-tab
+
+    "oc" 'vlad/open-config
+
+    "pa" 'projectile-add-known-project
+    "pd" 'projectile-remove-known-project
+    "pf" 'projectile-find-file
+    "pi" 'projectile-invalidate-cache
+    "pp" 'projectile-switch-project
+
+    "<" 'ivy-switch-buffer
+
+    "f" 'find-file
+    "." 'find-file
+    "SPC" 'projectile-find-file)
+
+  (general-def 'normal c++-mode-map
+    :prefix "SPC"
+    "s" 'lsp-clangd-find-other-file)
+
+  (general-def 'normal lsp-mode-map
+    "K" 'lsp-describe-thing-at-point)
+  (general-def 'normal lsp-mode-map
+    :prefix "SPC"
+    "rf" 'lsp-find-references
+    "ca" 'lsp-execute-code-action
+    "cr" 'lsp-rename)
+
+  (general-def 'normal c++-mode-map
+    "=" 'vlad/clang-format-region)
+  (general-def 'visual c++-mode-map
+    "=" 'vlad/clang-format-region)
+
+  (general-def 'normal rust-mode-map
+    :prefix "SPC"
+    "rc" 'lsp-rust-analyzer-open-cargo-toml)
+
+  (general-def 'insert web-mode-map
+    "TAB" 'emmet-expand-line
+    "C-j" 'emmet-next-edit-point
+    "C-о" 'emmet-next-edit-point
+    "C-k" 'emmet-prev-edit-point
+    "C-л" 'emmet-prev-edit-point)
+
+  (general-def 'insert ivy-minibuffer-map
+    "C-j" 'ivy-immediate-done)
+  )
+
+(setq dired-listing-switches "-al")
+
+(use-package projectile
+  :straight t
+  :diminish
+  :config
+  (projectile-mode)
+  (setq projectile-indexing-method 'alien) ;; To be explicit
+  (setq projectile-generic-command "fd . -0 -H --color=never --type file --type symlink --follow --exclude .git")
+  (setq projectile-track-known-projects-automatically nil)
+  (add-to-list 'projectile-project-root-files "ya.make")
+  (setq projectile-switch-project-action 'projectile-dired)
+  ;; (setq projectile-globally-ignored-directories '(".cache/clangd" "node_modules" ".next" "build")) ;; NOTE: does not work with `alien' indexing method
+  )
+
+(use-package which-key
+  :straight t
+  :diminish
+  :init
+  (which-key-mode))
+
+;; --- git ---
+(use-package magit
+  :straight t)
+
+;; (use-package protobuf-mode
+;;   :straight t)
+
+;; --- tree-sitter ---
+
+(use-package tree-sitter
+  :straight t
+  :diminish
+  :config
+  (global-tree-sitter-mode))
+
+(use-package tree-sitter-langs
+  :after tree-sitter
+  :straight t)
+
+(setq treesit-language-source-alist
+  '((bash "https://github.com/tree-sitter/tree-sitter-bash")
+    (c "https://github.com/tree-sitter/tree-sitter-c")
+    ;; (cmake "https://github.com/uyha/tree-sitter-cmake")
+    ;; (common-lisp "https://github.com/theHamsta/tree-sitter-commonlisp")
+    (cpp "https://github.com/tree-sitter/tree-sitter-cpp")
+    (css "https://github.com/tree-sitter/tree-sitter-css")
+    ;; (csharp "https://github.com/tree-sitter/tree-sitter-c-sharp")
+    ;; (elisp "https://github.com/Wilfred/tree-sitter-elisp")
+    ;; (go "https://github.com/tree-sitter/tree-sitter-go")
+    ;; (go-mod "https://github.com/camdencheek/tree-sitter-go-mod")
+    (html "https://github.com/tree-sitter/tree-sitter-html")
+    ;; (js . ("https://github.com/tree-sitter/tree-sitter-javascript" "master" "src"))
+    (json "https://github.com/tree-sitter/tree-sitter-json")
+    ;; (lua "https://github.com/Azganoth/tree-sitter-lua")
+    ;; (make "https://github.com/alemuller/tree-sitter-make")
+    ;; (markdown "https://github.com/ikatyang/tree-sitter-markdown")
+    (python "https://github.com/tree-sitter/tree-sitter-python")
+    ;; (r "https://github.com/r-lib/tree-sitter-r")
+    (rust "https://github.com/tree-sitter/tree-sitter-rust")
+    ;; (toml "https://github.com/tree-sitter/tree-sitter-toml")
+    (tsx "https://github.com/tree-sitter/tree-sitter-typescript"
+         "master"
+         "tsx/src")
+    (typescript "https://github.com/tree-sitter/tree-sitter-typescript"
+                "master"
+                "typescript/src")
+    ;; (yaml "https://github.com/ikatyang/tree-sitter-yaml")
+    ))
+
+(add-to-list 'major-mode-remap-alist `(json-mode . json-ts-mode))
+
+(use-package typescript-ts-mode
+  :defer t
+  :mode (("\\.ts\\'" . typescript-ts-mode)
+         ("\\.tsx\\'" . tsx-ts-mode))
+  :config
+  (add-hook 'typescript-ts-mode-hook #'lsp)
+  (add-hook 'tsx-ts-mode-hook #'lsp)
+  )
+
+(setq major-mode-remap-alist
+      '((json-mode . json-ts-mode)))
+
+;; --- Lsp ---
+(use-package lsp-mode
+  :straight t
+  :custom
+  (lsp-rust-analyzer-display-lifetime-elision-hints-enable "skip_trivial")
+  (lsp-rust-analyzer-display-chaining-hints t)
+  (lsp-rust-analyzer-display-lifetime-elision-hints-use-parameter-names nil)
+  (lsp-rust-analyzer-display-closure-return-type-hints t)
+  (lsp-rust-analyzer-display-parameter-hints nil)
+  (lsp-rust-analyzer-display-reborrow-hints nil)
+
+  :config
+  (setq lsp-semantic-tokens-enable t
+	lsp-inlay-hint-enable nil
+	lsp-lens-enable t
+	lsp-headerline-breadcrumb-enable nil
+        lsp-enable-symbol-highlighting t
+        lsp-enable-file-watchers nil) ;; TODO(arealhero): disable watchers for pyright only
+
+  (setq lsp-clients-clangd-args
+        '("-j=6"
+          "--background-index"
+          "--clang-tidy"
+          "--completion-style=detailed"
+          "--header-insertion=never"))
+
+  (setq lsp-pylsp-plugins-flake8-max-line-length nil)
+
+  (add-hook 'c++-mode-hook
+	    (lambda ()
+	      (tree-sitter-hl-mode)
+	      (lsp)))
+
+  (add-hook 'rust-mode-hook 'lsp-deferred)
+  )
+
+(use-package rust-mode
+  :straight t
+  :init
+  (setq rust-mode-treesitter-derive t))
+
+(use-package lsp-pyright
+  :straight t
+  :hook (python-mode . (lambda ()
+                          (require 'lsp-pyright)
+			  (tree-sitter-hl-mode)
+                          (lsp))))  ; or lsp-deferred
+
+(use-package company
+  :straight t
+  :diminish
+  :hook
+  (after-init . global-company-mode)
+  :config
+  (setq company-idle-delay
+	(lambda () (if (company-in-string-or-comment) nil 0.2)))
+  (setq company-global-modes '(not erc-mode message-mode eshell-mode)))
+
+(use-package flycheck
+  :straight t
+  :config
+  :hook
+  (after-init . global-flycheck-mode))
+
+(use-package lsp-ui
+  :after lsp-mode
+  :straight t
+  :custom
+  (lsp-ui-doc-show-with-mouse nil)
+  (lsp-ui-sideline-update-mode 'line))
+
+;; --- C++ ---
+(use-package clang-format
+  :straight t
+  :config
+  (setq clang-format-style "file"))
+
+;; --- Misc ---
+(electric-pair-mode 1)
+;; (setq electric-pair-preserve-balance nil)
+(setq-default electric-pair-inhibit-predicate 'electric-pair-conservative-inhibit)
+
+;; See https://libredd.it/r/emacs/comments/l42oep/comment/gkmnh3y/
+(setq comp-async-report-warnings-errors nil)
+(setq native-comp-async-report-warnings-errors nil)
+
+(setq scroll-margin 5
+      scroll-step 1
+      scroll-conservatively 10000)
+
+(setq confirm-kill-emacs nil)
+
+;; (global-display-line-numbers-mode 1)
+;; See https://libreddit.tiekoetter.com/r/emacs/comments/8pfdlb/weird_shifting_problem_with_new_emacs_line_numbers/
+(setq-default display-line-numbers-type 'relative
+              display-line-numbers-width-start t)
+
+;; By default Emacs creates backup files (e.g. test.c~) and autosave
+;; files (e.g. #test.c#) in the same directory the file belongs to.
+;; The next code block moves those files to the separate directory.
+(defconst vlad/emacs-cache-dir (expand-file-name "emacs" xdg/cache-home))
+(defconst vlad/emacs-lock-files-dir (expand-file-name "lock-files" vlad/emacs-cache-dir))
+(make-directory vlad/emacs-cache-dir t)
+(make-directory vlad/emacs-lock-files-dir t)
+
+(setq backup-directory-alist
+      `((".*" . ,vlad/emacs-cache-dir)))
+
+(setq auto-save-file-name-transforms `((".*" ,vlad/emacs-cache-dir t))
+      auto-save-list-file-prefix vlad/emacs-cache-dir
+      lock-file-name-transforms `((".*" ,vlad/emacs-lock-files-dir t)))
+
+(setq undo-tree-history-directory-alist
+      `((".*" . ,vlad/emacs-cache-dir)))
+
+(defun vlad/sync-org-agenda-files ()
+  "Syncronize org-agenda-files."
+  (interactive)
+  (setq org-agenda-files (directory-files-recursively vlad/org-directory "\\.org$")))
+
+(setq org-directory vlad/org-directory
+      org-attach-use-inheritance t
+      org-hide-emphasis-markers nil
+      org-startup-indented t
+      org-confirm-babel-evaluate nil
+      org-deadline-warning-days 0)
+
+(vlad/sync-org-agenda-files)
+
+;; PDFs visited in Org-mode are opened in zathura (and not in the default choice).
+;; See https://stackoverflow.com/a/8836108/789593
+(add-hook 'org-mode-hook
+	  #'(lambda ()
+	      (delete '("\\.pdf\\'" . default) org-file-apps)
+	      (delete '("\\.djvu\\'" . default) org-file-apps)
+	      (add-to-list 'org-file-apps '("\\.pdf\\'" . "zathura %s"))
+	      (add-to-list 'org-file-apps '("\\.djvu\\'" . "zathura %s"))
+
+	      (delete '("\\.webm\\'" . default) org-file-apps)
+	      (delete '("\\.mkv\\'" . default) org-file-apps)
+	      (add-to-list 'org-file-apps '("\\.webm\\'" . "mpv --speed=1.75 --fs %s"))
+	      (add-to-list 'org-file-apps '("\\.mkv\\'" . "mpv --speed=1.75 --fs %s"))))
+
+(add-hook 'org-mode-hook 'turn-on-auto-fill)
+(add-hook 'org-mode-hook #'(lambda ()
+                             (setq fill-column 80)))
+
+(use-package evil-commentary
+  :straight t
+  :diminish
+  :hook
+  (after-init . evil-commentary-mode))
+
+(use-package elfeed
+  :straight t
+  :general-config
+  (general-def 'normal elfeed-search-mode-map
+    "RET" 'elfeed-search-show-entry
+    "U" 'elfeed-update
+    "u" 'vlad/elfeed-search-toggle-unread
+    "q" 'elfeed-search-quit-window
+    "s" 'elfeed-search-set-filter)
+
+  (general-def 'normal elfeed-show-mode-map
+    "n" 'elfeed-show-next
+    "p" 'elfeed-show-prev
+    "u" 'vlad/elfeed-show-unread-current-entry
+    "q" 'elfeed-search-quit-window)
+
+  :config
+  (defconst vlad/elfeed-news-filter "+unread +news")
+  (defconst vlad/elfeed-emacs-filter "+unread +emacs")
+
+  (setq elfeed-search-remain-on-entry t
+        elfeed-sort-order 'ascending
+        elfeed-search-filter vlad/elfeed-news-filter)
+
+  (add-hook 'elfeed-search-mode-hook 'elfeed-update)
+  (add-hook 'elfeed-show-mode-hook #'(lambda ()
+                                       (setq fill-column 80
+                                             shr-max-width 80)))
+
+  (defun vlad/elfeed-search-remove-tag (&optional tag)
+    (interactive)
+    (let ((entry (elfeed-search-selected :ignore-region)))
+      (unless entry
+        (error "No entry selected!"))
+
+      (unless tag
+        (setq tag (completing-read "Tag: " (elfeed-entry-tags entry))))
+
+      (elfeed-untag entry tag)
+      ;; (if (elfeed-tagged-p 'unread entry)
+      ;;     (elfeed-untag entry 'unread)
+      ;;   (elfeed-tag entry 'unread))
+      (elfeed-search-update-entry entry)
+      (unless elfeed-search-remain-on-entry (forward-line))))
+
+  (defun vlad/elfeed-search-add-tag (tag)
+    (interactive "Tag: ")
+    (let ((entry (elfeed-search-selected :ignore-region)))
+      (unless entry
+        (error "No entry selected!"))
+      (elfeed-tag entry tag)
+      ;; (if (elfeed-tagged-p 'unread entry)
+      ;;     (elfeed-untag entry 'unread)
+      ;;   (elfeed-tag entry 'unread))
+      (elfeed-search-update-entry entry)
+      (unless elfeed-search-remain-on-entry (forward-line))))
+
+  (defun vlad/elfeed-search-toggle-unread ()
+    (interactive)
+    (let ((entry (elfeed-search-selected :ignore-region)))
+      (unless entry
+        (error "No entry selected!"))
+      (if (elfeed-tagged-p 'unread entry)
+          (elfeed-untag entry 'unread)
+        (elfeed-tag entry 'unread))
+      (elfeed-search-update-entry entry)
+      (unless elfeed-search-remain-on-entry (forward-line))))
+
+  (defun vlad/elfeed-show-unread-current-entry ()
+    "Quit elfeed-show mode and mark current entry as unread.
+Note that this function requires that `elfeed-search-remain-on-entry' is not nil."
+    (interactive)
+    (elfeed-search-quit-window)
+    (vlad/elfeed-search-toggle-unread))
+  ) ;; use-package
+
+(defun vlad/get-current-time-string ()
+  "Get current time as string."
+  (interactive)
+  (format-time-string "%H:%M:%S" (current-time)))
+
+(use-package org
+  :defer t
+  :straight `(org
+              :fork (:host nil
+                           :repo "https://git.tecosaur.net/tec/org-mode.git"
+                           :branch "dev"
+                           :remote "tecosaur")
+              :files (:defaults "etc")
+              :build t
+              :pre-build
+              (with-temp-file "org-version.el"
+                (require 'lisp-mnt)
+                (let ((version
+                       (with-temp-buffer
+                         (insert-file-contents "lisp/org.el")
+                         (lm-header "version")))
+                      (git-version
+                       (string-trim
+                        (with-temp-buffer
+                          (call-process "git" nil t nil "rev-parse" "--short" "HEAD")
+                          (buffer-string)))))
+                  (insert
+                   (format "(defun org-release () \"The release version of Org.\" %S)\n" version)
+                   (format "(defun org-git-version () \"The truncate git commit hash of Org mode.\" %S)\n" git-version)
+                   "(provide 'org-version)\n")))
+              :pin nil)
+
+  :commands (org-previous-visible-heading org-set-property)
+  :custom (org-todo-keywords
+           '((sequence "TODO(t)" "IN_ASSESSMENT(a)" "IN_PROGRESS(p)" "|" "DONE(d)" "WONTFIX(w)" "DROPPED(D)" "BACKLOG(b)")))
+  :general-config
+  (general-def 'normal org-mode-map
+   :prefix "SPC"
+   "aa" 'org-attach-attach
+   "c" 'org-ctrl-c-ctrl-c
+   "il" 'org-insert-link
+   "lt" 'vlad/org-log-current-time
+   "oo" 'org-open-at-point
+   "t" 'org-todo)
+
+  (general-def 'normal org-mode-map
+   "C-k" 'org-timestamp-up
+   "C-j" 'org-timestamp-down)
+
+  :config
+  (defun vlad/org-log-current-time ()
+    "Add current time to the nearest header."
+    (interactive)
+    (let ((saved-position (point)))
+      (org-previous-visible-heading 1)
+      (org-set-property "TIME" (vlad/get-current-time-string))
+      (goto-char saved-position)))
+
+  ;; Increase preview width
+  (plist-put org-latex-preview-appearance-options
+             :page-width 0.8)
+
+  (setq org-latex-packages-alist '())
+  (add-to-list 'org-latex-packages-alist '("" "amssymb" t))
+  (add-to-list 'org-latex-packages-alist '("" "amsmath" t))
+
+  ;; Use dvisvgm to generate previews
+  ;; You don't need this, it's the default:
+  (setq org-latex-preview-process-default 'dvisvgm)
+
+  ;; Turn on auto-mode, it's built into Org and much faster/more featured than
+  ;; org-fragtog. (Remember to turn off/uninstall org-fragtog.)
+  (add-hook 'org-mode-hook 'org-latex-preview-auto-mode)
+
+  ;; Block C-n and C-p from opening up previews when using auto-mode
+  (add-hook 'org-latex-preview-auto-ignored-commands 'next-line)
+  (add-hook 'org-latex-preview-auto-ignored-commands 'previous-line)
+
+  ;; Enable consistent equation numbering
+  (setq org-latex-preview-numbered t)
+
+  ;; Bonus: Turn on live previews.  This shows you a live preview of a LaTeX
+  ;; fragment and updates the preview in real-time as you edit it.
+  ;; To preview only environments, set it to '(block edit-special) instead
+  (setq org-latex-preview-live nil)
+
+  ;; More immediate live-previews -- the default delay is 1 second
+  (setq org-latex-preview-live-debounce 0.25)
+  )
+
+(use-package elfeed-org
+  :after (elfeed org)
+  :straight t
+  :config
+  (elfeed-org))
+
+(use-package org-roam
+  :straight t
+
+  :custom
+  (org-roam-directory vlad/org-directory)
+  (org-roam-dailies-directory "daily/")
+  (org-roam-dailies-capture-templates
+   `(("d" "default" entry
+      "* %?"
+      :target (file+head "%<%Y-%m-%d>.org"
+			 "#+title: %<%Y-%m-%d>\n"))))
+
+  (org-roam-capture-templates
+   `(("s" "science" plain "%?"
+      :if-new
+      (file+head "science/%<%Y%m%d%H%M%S>-${slug}.org"
+                 ":PROPERTIES:\n:CATEGORY: ${title}\n:END:\n#+TITLE: ${title}\n#+CREATED: %U\n#+FILETAGS: :science:\n\n* Источник\n- ")
+      :immediate-finish t
+      :unnarrowed t)
+
+     ("m" "Main")
+     ("mg" "General note" plain "%?"
+      :if-new
+      (file+head "main/%<%Y%m%d%H%M%S>-${slug}.org"
+                 ":PROPERTIES:\n:CATEGORY: ${title}\n:END:\n#+TITLE: ${title}\n#+CREATED: %U\n#+FILETAGS: :main:\n")
+      :immediate-finish t
+      :unnarrowed t)
+
+     ("mp" "Person" plain "%?"
+      :if-new
+      (file+head "main/person/%<%Y%m%d%H%M%S>-${slug}.org"
+                 ":PROPERTIES:\n:CATEGORY: ${title}\n:END:\n#+TITLE: ${title}\n#+CREATED: %U\n#+FILETAGS: :person:\n")
+      :immediate-finish t
+      :unnarrowed t)
+
+     ("r" "reference" plain "%?"
+      :if-new
+      (file+head "references/${citar-citekey}.org"
+                 ":PROPERTIES:\n:CATEGORY: [${citar-citekey}] ${note-title}\n:END:\n#+TITLE: [${citar-citekey}] ${note-title}\n#+CREATED: %U\n#+FILETAGS: :reference:\n")
+      :immediate-finish t
+      :unnarrowed t)
+
+     ("y" "Yandex")
+
+     ("yn" "Note" plain "%?"
+      :if-new
+      (file+head "yandex/%<%Y%m%d%H%M%S>-${slug}.org"
+                 ":PROPERTIES:\n:CATEGORY: Yandex - ${title}\n:END:\n#+TITLE: Yandex - ${title}\n#+CREATED: %U\n#+FILETAGS: :yandex:nda:\n")
+      :immediate-finish t
+      :unnarrowed t)
+     ("yt" "Ticket" plain "%?"
+      :if-new
+      (file+head "yandex/tickets/%<%Y%m%d%H%M%S>-${slug}.org"
+                 ":PROPERTIES:\n:CATEGORY: Yandex - ${title}\n:END:\n#+TITLE: Yandex - ${title}\n#+CREATED: %U\n#+FILETAGS: :yandex:nda:\n\nТрекер: [[https://st.yandex-team.ru/${title}]]")
+      :immediate-finish t
+      :unnarrowed t)
+     ("yp" "person" plain "%?"
+      :if-new
+      (file+head "yandex/person/%<%Y%m%d%H%M%S>-${slug}.org"
+                 ":PROPERTIES:\n:CATEGORY: Yandex - ${title}\n:END:\n#+TITLE: Yandex - ${title}\n#+CREATED: %U\n#+FILETAGS: :yandex:nda:person:\n\n* Контакты\n- Стафф\n- Telegram")
+      :immediate-finish t
+      :unnarrowed t)
+     ))
+
+  :config
+  (setq org-roam-node-display-template
+	(concat "${title:*} "
+		(propertize "${tags:10}" 'face 'org-tag)))
+  (org-roam-db-autosync-mode)
+
+  :general-config
+  (general-def 'normal org-mode-map
+   :prefix "SPC"
+   "nn" 'org-roam-dailies-goto-next-note
+   "np" 'org-roam-dailies-goto-previous-note))
+
+(use-package all-the-icons
+  :straight t
+  :if (display-graphic-p))
+
+(use-package citar
+  :straight t
+  :custom
+  (org-cite-global-bibliography '("~/data/references.bib"))
+  (org-cite-insert-processor 'citar)
+  (org-cite-follow-processor 'citar)
+  (org-cite-activate-processor 'citar)
+  (citar-bibliography '("~/data/references.bib"))
+  (citar-notes-paths '("~/data/references"))
+  (citar-symbols
+   `((file ,(all-the-icons-faicon "file-pdf-o" :face 'all-the-icons-green :v-adjust -0.1) . " ")
+     (note ,(all-the-icons-material "speaker_notes" :face 'all-the-icons-blue :v-adjust -0.3) . " ")
+     (link ,(all-the-icons-octicon "link" :face 'all-the-icons-orange :v-adjust 0.01) . " ")))
+  (citar-symbol-separator "  "))
+
+(use-package citar-org-roam
+  :straight t
+  :after (citar org-roam)
+  :diminish
+  :custom
+  (citar-org-roam-capture-template-key "r")
+  (citar-org-roam-note-title-template "${author} - ${title}")
+  :config (citar-org-roam-mode))
+
+;; https://github.com/fxbois/web-mode
+(use-package web-mode
+  :straight t
+  :defer t)
+
+(defun vlad/web-mode-hook ()
+  "Hooks for web-mode."
+  (setq web-mode-markup-indent-offset 2)
+  (setq web-mode-code-indent-offset 2))
+(add-hook 'web-mode-hook 'vlad/web-mode-hook)
+
+(add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.js\\'" . web-mode))
+
+;; https://github.com/smihica/emmet-mode
+(use-package emmet-mode
+  :straight t
+  :defer t
+  :hook (web-mode . emmet-mode))
+
+(use-package yasnippet
+  :straight t
+  :diminish
+  :config
+  (yas-reload-all)
+  (yas-global-mode)
+  (diminish 'yas-minor-mode))
+
+(use-package hippie-exp
+  :straight t
+  :defer t
+  :config
+  (setq-default hippie-expand-try-functions-list
+                '(yas-hippie-try-expand emmet-expand-line)))
+
+(use-package meson-mode
+  :straight t
+  :defer t)
+
+(use-package yaml-mode
+  :straight t
+  :defer t)
+
+(use-package undo-tree
+  :after evil
+  :straight t
+  :diminish
+  :config
+  (global-undo-tree-mode)
+  (evil-set-undo-system 'undo-tree))
+
+;;; Docker
+
+(use-package dockerfile-mode
+  :straight t)
+
+(provide 'config)
+;;; config.el ends here

@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: pmat
+# key: pmat
+# --
+\begin{pmat}
+  $0
+\end{pmat}

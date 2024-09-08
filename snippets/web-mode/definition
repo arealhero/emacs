@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: definition
+# key: def
+# --
+<div class="definition">
+  $0
+</div>

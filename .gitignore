@@ -1,0 +1,34 @@
+elpa/
+auto-save-list/
+eln-cache/
+.cache/
+eshell/
+
+persp-confs/
+projectile-bookmarks.eld
+transient/
+timetable/
+
+*~
+\#*\#
+
+custom.el
+
+.org-id-locations
+bookmarks
+org-roam.db
+
+diary
+projects
+
+\.lsp-session-*
+
+# personal
+elfeed.org
+ya.el
+
+# junk
+games
+projectile.cache
+tree-sitter
+straight
