@@ -334,8 +334,8 @@
 (use-package magit
   :straight t)
 
-;; (use-package protobuf-mode
-;;   :straight t)
+(use-package protobuf-mode
+  :straight t)
 
 ;; --- tree-sitter ---
 
