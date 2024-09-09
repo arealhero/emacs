@@ -120,16 +120,18 @@
         evil-search-module 'evil-search)
   (global-visual-line-mode)
   :config
-  (evil-mode))
+  (evil-mode)
 
-(evil-define-operator vlad/clang-format-region (beg end)
-  :move-point nil
-  :type line
-  (evil-ensure-column
-    (save-restriction
-      (goto-char beg)
-      (clang-format-region beg end)
-      (evil-force-normal-state))))
+  (evil-define-operator vlad/clang-format-region (beg end)
+    :move-point nil
+    :type line
+    (evil-ensure-column
+      (save-restriction
+        (goto-char beg)
+        (clang-format-region beg end)
+        (evil-force-normal-state))))
+  )
+
 
 ;; Documentation: https://github.com/noctuid/general.el
 (use-package general
@@ -505,9 +507,6 @@
       auto-save-list-file-prefix vlad/emacs-cache-dir
       lock-file-name-transforms `((".*" ,vlad/emacs-lock-files-dir t)))
 
-(setq undo-tree-history-directory-alist
-      `((".*" . ,vlad/emacs-cache-dir)))
-
 (use-package evil-commentary
   :straight t
   :diminish
@@ -868,7 +867,11 @@ Note that this function requires that `elfeed-search-remain-on-entry' is not nil
   :diminish
   :config
   (global-undo-tree-mode)
-  (evil-set-undo-system 'undo-tree))
+  (evil-set-undo-system 'undo-tree)
+
+  (setq undo-tree-history-directory-alist
+        `((".*" . ,vlad/emacs-cache-dir)))
+  )
 
 (provide 'config)
 ;;; config.el ends here
