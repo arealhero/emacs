@@ -58,11 +58,12 @@
   (add-hook 'after-focus-change-function
             'garbage-collect))
 
-;; max memory available for gc when opening minibuffer
 (defun vlad/defer-garbage-collection-h ()
+  "Set max memory available for gc when opening minibuffer."
   (setq gc-cons-threshold most-positive-fixnum))
 
 (defun vlad/restore-garbage-collection-h ()
+  "Restore max memory available for gc."
   ;; Defer it so that commands launched immediately after will enjoy the
   ;; benefits.
   (run-at-time 1 nil (lambda () (setq gc-cons-threshold vlad/gc-cons-threshold))))
@@ -100,8 +101,8 @@
               (time-subtract after-init-time before-init-time)))
             gcs-done)))
 
-;; Hide advertisement from minibuffer
 (defun display-startup-echo-area-message ()
+  "Hide advertisement from minibuffer."
   (message ""))
 
 (blink-cursor-mode -1)
@@ -109,19 +110,8 @@
 (use-package bind-key
   :straight t)
 
-;; ;;;; Bootstrap use-package
-;; ;; Install use-package if it's not already installed.
-;; (unless (package-installed-p 'diminish)
-;;   (package-refresh-contents)
-;;   (package-install 'diminish))
-
-;; (eval-when-compile
-;;   (require 'use-package))
-
-;; (require 'diminish)
-;; (require 'bind-key)
-
 (defun vlad/load-config-file (filename)
+  "Load the config file by FILENAME."
   (load-file (expand-file-name filename user-emacs-directory)))
 
 (vlad/load-config-file "utils.el")
