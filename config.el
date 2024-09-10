@@ -90,6 +90,15 @@
 (use-package vscode-dark-plus-theme
   :straight t)
 
+(use-package nerd-icons
+  :straight t)
+
+(use-package doom-modeline
+  :straight t
+  :hook (after-init . doom-modeline-mode)
+  :custom (doom-modeline-buffer-file-name-style 'truncate-nil)
+  )
+
 (set-frame-font "Fira Code 18" nil t)
 (set-face-italic 'italic nil) ;; Looks bad
 
