@@ -47,10 +47,10 @@
   (add-hook 'hs-minor-mode-hook
 	    (lambda () (diminish 'hs-minor-mode))))
 
-(display-battery-mode 1)
-(setq-default display-time-24hr-format t
-              display-time-day-and-date t)
-(display-time-mode 1)
+;; (display-battery-mode 1)
+;; (setq-default display-time-24hr-format t
+;;               display-time-day-and-date t)
+;; (display-time-mode 1)
 
 (setq mac-option-modifier 'meta)
 
