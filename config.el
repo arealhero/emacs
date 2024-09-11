@@ -587,7 +587,7 @@
   (defun vlad/sync-org-agenda-files ()
     "Syncronize org-agenda-files."
     (interactive)
-    (setq org-agenda-files (directory-files-recursively vlad/org-directory "\\.org$")))
+    (setq org-agenda-files (directory-files-recursively vlad/org-directory org-agenda-file-regexp))
 
   (setq org-directory vlad/org-directory
         org-attach-use-inheritance t
