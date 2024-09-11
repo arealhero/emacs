@@ -96,7 +96,18 @@
 (use-package doom-modeline
   :straight t
   :hook (after-init . doom-modeline-mode)
-  :custom (doom-modeline-buffer-file-name-style 'truncate-nil)
+  :custom
+  (doom-modeline-buffer-file-name-style 'truncate-nil)
+  (doom-modeline-check-simple-format t)
+  (doom-modeline-check-icon t)
+  :config
+  (doom-modeline-def-modeline 'vlad/main
+    '(eldoc bar workspace-name window-number modals matches follow buffer-info remote-host buffer-position word-count parrot selection-info)
+    '(compilation objed-state misc-info persp-name battery grip irc mu4e gnus github debug repl lsp minor-modes input-method indent-info process vcs major-mode check time))
+  (defun vlad/setup-doom-modeline ()
+    (doom-modeline-set-modeline 'vlad/main 'default))
+
+  (add-hook 'doom-modeline-mode-hook 'vlad/setup-doom-modeline)
   )
 
 (set-frame-font "Fira Code 18" nil t)
