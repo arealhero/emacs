@@ -2,6 +2,6 @@
 # name: pmat
 # key: pmat
 # --
-\begin{pmat}
+\begin{pmatrix}
   $0
-\end{pmat}
+\end{pmatrix}
