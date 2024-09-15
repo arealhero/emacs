@@ -854,22 +854,23 @@ Note that this function requires that `elfeed-search-remain-on-entry' is not nil
 (use-package web-mode
   :straight t
   :defer t
-  :config
-  (defun vlad/web-mode-hook ()
-    "Hooks for web-mode."
-    (setq web-mode-markup-indent-offset 2)
-    (setq web-mode-code-indent-offset 2))
-  (add-hook 'web-mode-hook 'vlad/web-mode-hook)
-
-  (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
-  (add-to-list 'auto-mode-alist '("\\.js\\'" . web-mode))
+  :init
+  (defun vlad/web-mode-setup ()
+    (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
+    (add-to-list 'auto-mode-alist '("\\.js\\'" . web-mode)))
+  :hook
+  (after-init . vlad/web-mode-setup)
+  :custom
+  (web-mode-markup-indent-offset 2)
+  (web-mode-code-indent-offset 2)
   )
 
 ;; https://github.com/smihica/emmet-mode
 (use-package emmet-mode
   :straight t
   :defer t
-  :hook (web-mode . emmet-mode))
+  ;; :hook (web-mode . emmet-mode)
+  )
 
 (use-package yasnippet
   :straight t
@@ -881,6 +882,7 @@ Note that this function requires that `elfeed-search-remain-on-entry' is not nil
 
 (use-package hippie-exp
   :straight t
+  :after emmet-mode
   :defer t
   :config
   (setq-default hippie-expand-try-functions-list
