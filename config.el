@@ -90,6 +90,10 @@
 (use-package vscode-dark-plus-theme
   :straight t)
 
+(use-package all-the-icons
+  :straight t
+  :if (display-graphic-p))
+
 (use-package nerd-icons
   :straight t)
 
@@ -570,8 +574,10 @@
               :pin nil)
 
   :commands (org-previous-visible-heading org-set-property)
-  :custom (org-todo-keywords
-           '((sequence "TODO(t)" "IN_ASSESSMENT(a)" "IN_PROGRESS(p)" "|" "DONE(d)" "WONTFIX(w)" "DROPPED(D)" "BACKLOG(b)")))
+  :custom
+  (org-todo-keywords
+   '((sequence "TODO(t)" "IN_ASSESSMENT(a)" "IN_PROGRESS(p)" "|" "DONE(d)" "WONTFIX(w)" "DROPPED(D)" "BACKLOG(b)")))
+
   :general-config
   (general-def 'normal org-mode-map
    :prefix "SPC"
@@ -600,6 +606,40 @@
       (org-set-property "TIME" (vlad/get-current-time-string))
       (goto-char saved-position)))
 
+  ;;; Ricing org agenda
+  ;; Set span for agenda to be just daily
+  (setq org-agenda-span 1
+        org-agenda-start-day "+0d"
+        org-agenda-skip-timestamp-if-done t
+        org-agenda-skip-deadline-if-done t
+        org-agenda-skip-scheduled-if-done t
+        org-agenda-skip-scheduled-if-deadline-is-shown t
+        org-agenda-skip-timestamp-if-deadline-is-shown t)
+
+  (setq org-agenda-window-setup 'other-tab)
+
+  (setq org-agenda-current-time-string "")
+  (setq org-agenda-time-grid '((daily) () "" ""))
+
+  (setq org-agenda-hide-tags-regexp ".*")
+
+  (setq org-agenda-prefix-format '(
+                                   (agenda . "  %?-2i %t ")
+                                   (todo . " %i %-12:c")
+                                   (tags . " %i %-12:c")
+                                   (search . " %i %-12:c")
+                                   ))
+  (if (display-graphic-p)
+      (setq org-agenda-category-icon-alist
+            `(("university" ,(list (all-the-icons-faicon "university" :height 0.8 :v-adjust 0)) nil nil :ascent center)
+              ("work" ,(list (all-the-icons-material "work" :height 0.9)) nil nil :ascent center)
+              ("science" ,(list (all-the-icons-faicon "graduation-cap" :height 0.8 :v-adjust 0)) nil nil :ascent center)
+              ("personal" ,(list (all-the-icons-material "person" :height 0.9)) nil nil :ascent center)
+              ("birthday" ,(list (all-the-icons-faicon "birthday-cake" :height 0.8 :v-adjust 0)) nil nil :ascent center)
+              ("ricing" ,(list (all-the-icons-faicon "cog" :height 0.8 :v-adjust 0)) nil nil :ascent center)
+              ))
+    )
+
   (defun vlad/sync-org-agenda-files ()
     "Syncronize org-agenda-files."
     (interactive)
@@ -612,7 +652,8 @@
         org-confirm-babel-evaluate nil
         org-deadline-warning-days 0)
 
-  (vlad/sync-org-agenda-files)
+  (add-hook 'after-init-hook 'vlad/sync-org-agenda-files)
+  (add-hook 'org-roam-mode-hook 'vlad/sync-org-agenda-files)
 
   ;; PDFs visited in Org-mode are opened in zathura (and not in the default choice).
   ;; See https://stackoverflow.com/a/8836108/789593
@@ -662,6 +703,58 @@
 
   ;; More immediate live-previews -- the default delay is 1 second
   (setq org-latex-preview-live-debounce 0.25)
+  )
+
+(use-package org-modern
+  :after org
+  :straight t
+  :hook (after-init . global-org-modern-mode)
+  :config
+  (setq org-modern-fold-stars
+        '(("▶" . "▼")
+          ("▷" . "▽")
+          ;; ("⯈" . "⯆")
+          ("▷" . "▽")
+          ("▹" . "▿")
+          ("▸" . "▾")))
+  )
+
+(use-package org-super-agenda
+  :straight (:type git :host github :repo "alphapapa/org-super-agenda")
+  :hook (after-init . org-super-agenda-mode)
+  :config
+  (defconst vlad/org-agenda-overdue-header (concat (all-the-icons-faicon "exclamation" :height 0.8) " Overdue "))
+  (defconst vlad/org-agenda-today-header "Today")
+
+  (defun vlad/org-agenda-generate-group (header category)
+    `((:name ,(concat (all-the-icons-faicon "exclamation") " " header " ── Deadline")
+            :and (:deadline today :category ,category :not (:tag "event"))
+            :order 2
+            :face 'error)
+
+      (:name ,header
+            :and (:category ,category :not (:tag "event"))
+            :order 10))
+    )
+
+  (setq org-super-agenda-groups
+        `((:name ,vlad/org-agenda-overdue-header
+                 :scheduled past
+                 :order 2
+                 :face 'error)
+
+          ,@(vlad/org-agenda-generate-group "Birthdays" "birthday")
+          ,@(vlad/org-agenda-generate-group "Science" "science")
+          ,@(vlad/org-agenda-generate-group "Work" "work")
+          ,@(vlad/org-agenda-generate-group "University" "university")
+          ,@(vlad/org-agenda-generate-group "Personal" "personal")
+          ,@(vlad/org-agenda-generate-group "Ricing" "ricing")
+
+          (:name ,vlad/org-agenda-today-header
+                 :time-grid t
+                 :date today
+                 :scheduled today
+                 :order 1)))
   )
 
 (use-package elfeed
@@ -822,10 +915,6 @@ Note that this function requires that `elfeed-search-remain-on-entry' is not nil
    "nn" 'org-roam-dailies-goto-next-note
    "np" 'org-roam-dailies-goto-previous-note))
 
-(use-package all-the-icons
-  :straight t
-  :if (display-graphic-p))
-
 (use-package citar
   :straight t
   :custom
@@ -902,6 +991,11 @@ Note that this function requires that `elfeed-search-remain-on-entry' is not nil
 
   (setq undo-tree-history-directory-alist
         `((".*" . ,vlad/emacs-cache-dir)))
+  )
+
+(use-package olivetti
+  :straight (:type git :host github :repo "rnkn/olivetti")
+  :hook (org-agenda-finalize-hook . olivetti-mode)
   )
 
 (provide 'config)
