@@ -378,7 +378,7 @@
 (setq-default treesit-language-source-alist
   '((bash "https://github.com/tree-sitter/tree-sitter-bash")
     (c "https://github.com/tree-sitter/tree-sitter-c")
-    ;; (cmake "https://github.com/uyha/tree-sitter-cmake")
+    (cmake "https://github.com/uyha/tree-sitter-cmake")
     ;; (common-lisp "https://github.com/theHamsta/tree-sitter-commonlisp")
     (cpp "https://github.com/tree-sitter/tree-sitter-cpp")
     (css "https://github.com/tree-sitter/tree-sitter-css")
@@ -414,6 +414,11 @@
   :config
   (add-hook 'typescript-ts-mode-hook #'lsp)
   (add-hook 'tsx-ts-mode-hook #'lsp)
+  )
+
+(use-package cmake-ts-mode
+  :defer t
+  :mode ("\\.cmake\\'" . cmake-ts-mode)
   )
 
 (setq major-mode-remap-alist
