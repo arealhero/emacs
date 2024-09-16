@@ -410,6 +410,9 @@ folder, otherwise delete a character backward"
     "gg" 'evil-goto-first-line
     "G" 'evil-goto-line
 
+    "gt" 'evil-tab-next
+    "gT" 'tab-bar-switch-to-prev-tab
+
     "V" 'evil-visual-screen-line
 
     "C-d" 'evil-scroll-down
