@@ -23,6 +23,10 @@ projects
 
 \.lsp-session-*
 
+# misc
+history
+tramp
+
 # personal
 elfeed.org
 ya.el
