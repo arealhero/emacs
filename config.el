@@ -418,6 +418,11 @@
     ))
 
 (add-to-list 'major-mode-remap-alist `(json-mode . json-ts-mode))
+(use-package json-ts-mode
+  :defer t
+  :config
+  (add-hook 'json-ts-mode-hook (lambda () (setq standard-indent 2)))
+  )
 
 (use-package typescript-ts-mode
   :defer t
