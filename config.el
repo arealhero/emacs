@@ -589,7 +589,7 @@
   :commands (org-previous-visible-heading org-set-property)
   :custom
   (org-todo-keywords
-   '((sequence "TODO(t)" "IN_ASSESSMENT(a)" "IN_PROGRESS(p)" "|" "DONE(d)" "WONTFIX(w)" "DROPPED(D)" "BACKLOG(b)")))
+   '((sequence "TODO(t)" "IN_ASSESSMENT(a)" "IN_PROGRESS(p)" "HABIT(h)" "|" "DONE(d)" "WONTFIX(w)" "DROPPED(D)" "BACKLOG(b)")))
 
   :general-config
   (general-def 'normal org-mode-map
@@ -755,6 +755,10 @@
                  :scheduled past
                  :order 2
                  :face 'error)
+
+          (:name "Habits"
+                 :and (:tag "habit")
+                 :order 100)
 
           ,@(vlad/org-agenda-generate-group "Birthdays" "birthday")
           ,@(vlad/org-agenda-generate-group "Science" "science")
