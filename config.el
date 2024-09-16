@@ -31,12 +31,41 @@
 (setq enable-recursive-minibuffers t)
 (minibuffer-depth-indicate-mode)
 
-(use-package ivy
+(use-package consult
   :straight t
-  :diminish
-  :hook
-  (after-init . ivy-mode)
-)
+  :diminish)
+
+(use-package vertico
+  :straight t
+  :init
+  (vertico-mode))
+
+(defun vlad/minibuffer-backward-kill (arg)
+  "When minibuffer is completing a file name delete up to parent
+folder, otherwise delete a character backward"
+  (interactive "p")
+  (if minibuffer-completing-file-name
+      (vertico-directory-up)
+    ;; ;; Borrowed from https://github.com/raxod502/selectrum/issues/498#issuecomment-803283608
+    ;; (if (string-match-p "/." (minibuffer-contents))
+    ;;     (zap-up-to-char (- arg) ?/)
+    ;;   (delete-minibuffer-contents))
+    (delete-backward-char arg)))
+
+(use-package orderless
+  :straight t
+  :custom
+  (completion-styles '(orderless basic))
+  (completion-category-overrides '((file (styles basic partial-completion)))))
+
+(use-package marginalia
+  :commands marginalia-mode
+  :init
+  (marginalia-mode))
+
+(use-package savehist
+  :init
+  (savehist-mode))
 
 (use-package exec-path-from-shell
   :straight t
@@ -181,11 +210,12 @@
   (general-def
     "<escape>" 'keyboard-escape-quit)
 
-  (general-def 'ivy-mode-map
+  (general-def 'minibuffer-mode-map
     "M-v" 'yank
-    "C-w" 'ivy-backward-kill-word
-    "C-ц" 'ivy-backward-kill-word
-    "C-j" 'ivy-immediate-done)
+    "C-w" 'backward-kill-word
+    "C-ц" 'backward-kill-word
+    "<backspace>" 'vlad/minibuffer-backward-kill
+    )
 
   (general-def 'insert
     "M-v" 'yank
@@ -203,7 +233,6 @@
 
    "fs" 'grep-find
 
-   "gb" 'ivy-switch-buffer
    "gg" 'magit
 
    "hf" 'describe-function
@@ -248,7 +277,7 @@
    "ytc" (lambda () (interactive) (ya/for-each-test 'close))
    "yto" (lambda () (interactive) (ya/for-each-test 'open))
 
-   "<" 'ivy-switch-buffer
+   "<" 'switch-to-buffer
 
    "SPC" 'projectile-find-file)
 
@@ -311,7 +340,7 @@
     "pi" 'projectile-invalidate-cache
     "pp" 'projectile-switch-project
 
-    "<" 'ivy-switch-buffer
+    "<" 'switch-to-buffer
 
     "f" 'find-file
     "." 'find-file
@@ -343,11 +372,7 @@
     "C-j" 'emmet-next-edit-point
     "C-о" 'emmet-next-edit-point
     "C-k" 'emmet-prev-edit-point
-    "C-л" 'emmet-prev-edit-point)
-
-  (general-def 'insert ivy-minibuffer-map
-    "C-j" 'ivy-immediate-done)
-  )
+    "C-л" 'emmet-prev-edit-point))
 
 (setq dired-listing-switches "-alh")
 
