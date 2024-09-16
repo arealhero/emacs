@@ -20,7 +20,7 @@
   (vlad/open-org-file "todo.org"))
 
 (defun vlad/open-config ()
-  ;; TODO: test if file exists
+  ;; TODO: test if the file exists
   (interactive)
   (vlad/open-config-file "config.el"))
 
