@@ -17,8 +17,10 @@
 (menu-bar-mode t)
 (global-hl-line-mode 1)
 
-(setq-default fill-column 120)
-(global-display-fill-column-indicator-mode)
+(use-package display-fill-column-indicator
+  :config
+  (setq-default fill-column 120)
+  (global-display-fill-column-indicator-mode))
 
 (use-package autorevert
   :config
