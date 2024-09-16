@@ -105,7 +105,8 @@
   :if (display-graphic-p))
 
 (use-package nerd-icons
-  :straight t)
+  :straight t
+  :if (display-graphic-p))
 
 (use-package doom-modeline
   :straight t
