@@ -165,10 +165,13 @@
   :after evil
   :straight t
   :hook (evil-mode-hook . global-anzu-mode)
-  )
+  :config
+  (with-eval-after-load 'evil
+    (require 'evil-anzu)))
 
 ;; Documentation: https://github.com/noctuid/general.el
 (use-package general
+  :after evil
   :straight t
   :config
 
