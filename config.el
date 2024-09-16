@@ -80,15 +80,19 @@
 
 ;; --- themes ---
 
+(use-package nano-theme
+  :straight t)
+
 (use-package lambda-themes
   :straight (:type git :host github :repo "lambda-emacs/lambda-themes")
   :custom
   (lambda-themes-set-italic-comments nil)
   (lambda-themes-set-italic-keywords nil)
-  (lambda-themes-set-variable-pitch nil))
+  (lambda-themes-set-variable-pitch nil)
 
-(use-package spacemacs-theme
-  :straight t)
+  :config
+  (load-theme 'lambda-dark t)
+  )
 
 (use-package doom-themes
   :straight t
@@ -112,6 +116,7 @@
   (doom-modeline-buffer-file-name-style 'truncate-nil)
   (doom-modeline-check-simple-format t)
   (doom-modeline-check-icon t)
+  (doom-modeline-major-mode-icon nil)
   :config
   (doom-modeline-def-modeline 'vlad/main
     '(eldoc bar workspace-name window-number modals matches follow buffer-info remote-host buffer-position word-count parrot selection-info)
@@ -125,22 +130,6 @@
 (set-frame-font "Iosevka Nerd Font 18" nil t)
 (set-face-italic 'italic nil) ;; Looks bad
 
-(defun vlad/set-theme (theme)
-  "Load and enable the THEME and disable other themes."
-  ;; NOTE: interactive theme selection & its subsequent validation
-  ;;       was stolen from `load-theme' source code.
-  (interactive
-   (list (intern (completing-read "Theme: "
-                                  (mapcar #'symbol-name
-                                          (custom-available-themes))))))
-  (unless (custom-theme-name-valid-p theme)
-    (error "Invalid theme name `%s'" theme))
-
-  (dolist (enabled-theme custom-enabled-themes)
-    (disable-theme enabled-theme))
-  (load-theme theme 't))
-
-(vlad/set-theme 'doom-one)
 (use-package ligature
   :straight t
   :config
@@ -244,7 +233,7 @@
 
    "ro" 'citar-open
 
-   "ht" 'vlad/set-theme
+   "ht" 'consult-theme
 
    "up" 'straight-pull-all
 
