@@ -698,7 +698,7 @@ folder, otherwise delete a character backward"
         org-agenda-skip-scheduled-if-deadline-is-shown t
         org-agenda-skip-timestamp-if-deadline-is-shown t)
 
-  (setq org-agenda-window-setup 'other-tab)
+  (setq org-agenda-window-setup 'current-window)
 
   (setq org-agenda-current-time-string "")
   (setq org-agenda-time-grid '((daily) () "" ""))
