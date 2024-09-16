@@ -368,7 +368,46 @@
 
 ;; --- git ---
 (use-package magit
-  :straight t)
+  :straight t
+  :init
+
+  :general-config
+  (general-def 'emacs '(magit-mode-map magit-file-section-map magit-status-mode-map)
+    "j" 'magit-next-line
+    "k" 'magit-previous-line
+    "l" 'right-char
+    "h" 'left-char
+
+    "gg" 'evil-goto-first-line
+    "G" 'evil-goto-line
+
+    "V" 'evil-visual-screen-line
+
+    "C-d" 'evil-scroll-down
+    "C-u" 'evil-scroll-up
+
+    "C-w h" 'evil-window-left
+    "C-w j" 'evil-window-down
+    "C-w k" 'evil-window-up
+    "C-w l" 'evil-window-right
+
+    "C-j" 'magit-section-forward
+    "C-k" 'magit-section-backward
+
+    "/" 'evil-ex-search-forward
+    "n" 'evil-ex-search-next
+    "p" 'evil-ex-search-previous)
+
+  (general-def 'visual '(magit-mode-map magit-file-section-map magit-status-mode-map)
+    "s" 'magit-stage)
+
+  (general-def 'normal '(magit-mode-map magit-file-section-map magit-status-mode-map)
+    :prefix "SPC"
+    "h f" 'describe-function
+    "h k" 'describe-key
+    "h m" 'describe-mode
+    "h v" 'describe-variable)
+  )
 
 (use-package protobuf-mode
   :straight t)
