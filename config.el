@@ -44,8 +44,6 @@
   (when (memq window-system '(mac ns x))
     (exec-path-from-shell-initialize)))
 
-;; (add-to-list 'exec-path "$HOME/.nix-profile/bin")
-
 (use-package hideshow
   :straight t
   :diminish
