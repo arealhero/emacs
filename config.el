@@ -20,6 +20,8 @@
 (setq-default fill-column 120)
 (global-display-fill-column-indicator-mode)
 (column-number-mode)
+(setq enable-recursive-minibuffers t)
+(minibuffer-depth-indicate-mode)
 
 (use-package ivy
   :straight t
