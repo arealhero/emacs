@@ -122,7 +122,7 @@
   (add-hook 'doom-modeline-mode-hook 'vlad/setup-doom-modeline)
   )
 
-(set-frame-font "Fira Code 18" nil t)
+(set-frame-font "Iosevka Nerd Font 18" nil t)
 (set-face-italic 'italic nil) ;; Looks bad
 
 (defun vlad/set-theme (theme)
@@ -141,6 +141,17 @@
   (load-theme theme 't))
 
 (vlad/set-theme 'doom-one)
+(use-package ligature
+  :straight t
+  :config
+  ;; Enable all Iosevka ligatures in programming modes
+  (ligature-set-ligatures 'prog-mode '("<---" "<--"  "<<-" "<-" "->" "-->" "--->" "<->" "<-->" "<--->" "<---->" "<!--"
+                                       "<==" "<===" "<=" "=>" "=>>" "==>" "===>" ">=" "<=>" "<==>" "<===>" "<====>" "<!---"
+                                       "<~~" "<~" "~>" "~~>" "::" ":::" "==" "!=" "===" "!=="
+                                       ":=" ":-" ":+" "<*" "<*>" "*>" "<|" "<|>" "|>" "+:" "-:" "=:" "<******>" "++" "+++"))
+  ;; Enables ligature checks globally in all buffers. You can also do it
+  ;; per mode with `ligature-mode'.
+  (global-ligature-mode t))
 
 ;; (setq-default truncate-lines t)
 (use-package evil
@@ -719,17 +730,18 @@
   )
 
 (use-package org-modern
-  :after org
   :straight t
-  :hook (after-init . global-org-modern-mode)
   :config
   (setq org-modern-fold-stars
         '(("▶" . "▼")
           ("▷" . "▽")
-          ;; ("⯈" . "⯆")
+          ("⯈" . "⯆")
           ("▷" . "▽")
           ("▹" . "▿")
           ("▸" . "▾")))
+
+  (add-hook 'org-mode-hook #'org-modern-mode)
+  (add-hook 'org-agenda-finalize-hook #'org-modern-agenda)
   )
 
 (use-package org-super-agenda
