@@ -227,7 +227,7 @@
 
    "ht" 'vlad/set-theme
 
-   "up" 'vlad/update-packages
+   "up" 'straight-pull-all
 
    "ya" 'ya/open-in-arcadia
    "ycf" 'ya/copy-file-name

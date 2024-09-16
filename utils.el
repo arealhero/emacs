@@ -1,8 +1,3 @@
-(defun vlad/update-packages ()
-  (interactive)
-  (package-refresh-contents)
-  (message "Update completed."))
-
 (defun vlad/open-file (filename directory)
   (find-file (expand-file-name filename directory)))
 
