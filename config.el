@@ -19,6 +19,12 @@
 
 (setq-default fill-column 120)
 (global-display-fill-column-indicator-mode)
+
+(use-package autorevert
+  :config
+  (setq global-auto-revert-non-file-buffers t)
+  (global-auto-revert-mode))
+
 (column-number-mode)
 (setq enable-recursive-minibuffers t)
 (minibuffer-depth-indicate-mode)
@@ -37,8 +43,6 @@
     (exec-path-from-shell-initialize)))
 
 ;; (add-to-list 'exec-path "$HOME/.nix-profile/bin")
-
-(global-auto-revert-mode)
 
 (use-package hideshow
   :straight t
