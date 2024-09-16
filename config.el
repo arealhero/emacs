@@ -347,7 +347,7 @@
     "C-j" 'ivy-immediate-done)
   )
 
-(setq dired-listing-switches "-al")
+(setq dired-listing-switches "-alh")
 
 (use-package projectile
   :straight t
