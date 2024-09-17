@@ -42,16 +42,13 @@
   (setq vertico-count 20))
 
 (defun vlad/minibuffer-backward-kill (arg)
-  "When minibuffer is completing a file name delete up to parent
-folder, otherwise delete a character backward"
+  "Ivy-like behavior for completing file-name with vertico.
+When minibuffer is completing a file name delete up to parent folder,
+otherwise delete ARG characters backward."
   (interactive "p")
-  (if minibuffer-completing-file-name
+  (if (and minibuffer-completing-file-name (string-suffix-p "/" (minibuffer-contents)))
       (vertico-directory-up)
-    ;; ;; Borrowed from https://github.com/raxod502/selectrum/issues/498#issuecomment-803283608
-    ;; (if (string-match-p "/." (minibuffer-contents))
-    ;;     (zap-up-to-char (- arg) ?/)
-    ;;   (delete-minibuffer-contents))
-    (delete-backward-char arg)))
+    (delete-char arg)))
 
 (use-package orderless
   :straight t
