@@ -33,12 +33,6 @@
       (eval-print-last-sexp)))
   (load bootstrap-file nil 'nomessage))
 
-;; ;; Set up package
-;; (require 'package)
-;; (setq package-native-compile t)
-;; (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
-;; (package-initialize)
-
 ;; --- garbage collection ---
 
 ;; max memory available for gc on startup
