@@ -14,9 +14,6 @@
 
 ;; --- straight.el ---
 
-(setq straight-use-package-by-default 't
-      straight-vc-git-default-clone-depth 1)
-
 (defvar bootstrap-version)
 (let ((bootstrap-file
        (expand-file-name
@@ -32,6 +29,9 @@
       (goto-char (point-max))
       (eval-print-last-sexp)))
   (load bootstrap-file nil 'nomessage))
+
+(setq-default straight-use-package-by-default 't
+              straight-vc-git-default-clone-depth 1)
 
 ;; --- garbage collection ---
 
