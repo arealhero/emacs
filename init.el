@@ -75,6 +75,9 @@
 
 (straight-use-package 'use-package)
 
+;; NOTE: I know what I'm doing.
+(put 'narrow-to-page 'disabled nil)
+
 (use-package diminish
   :straight t)
 
