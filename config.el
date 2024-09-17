@@ -61,11 +61,11 @@ folder, otherwise delete a character backward"
 
 (use-package marginalia
   :commands marginalia-mode
-  :init
+  :config
   (marginalia-mode))
 
 (use-package savehist
-  :init
+  :config
   (savehist-mode))
 
 (use-package exec-path-from-shell
