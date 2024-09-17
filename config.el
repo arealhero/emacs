@@ -37,8 +37,9 @@
 
 (use-package vertico
   :straight t
-  :init
-  (vertico-mode))
+  :config
+  (vertico-mode)
+  (setq vertico-count 20))
 
 (defun vlad/minibuffer-backward-kill (arg)
   "When minibuffer is completing a file name delete up to parent
