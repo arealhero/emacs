@@ -116,4 +116,3 @@
 
 (vlad/load-config-file "utils.el")
 (vlad/load-config-file "config.el")
-(vlad/load-config-file "custom.el")
