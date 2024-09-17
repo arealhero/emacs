@@ -111,5 +111,10 @@
   "Load the config file by FILENAME."
   (load-file (expand-file-name filename user-emacs-directory)))
 
-(vlad/load-config-file "utils.el")
-(vlad/load-config-file "config.el")
+(load-file (locate-user-emacs-file "utils.el"))
+(load-file (locate-user-emacs-file "config.el"))
+(load-file (locate-user-emacs-file "custom.el"))
+
+(provide 'init)
+
+;;; init.el ends here

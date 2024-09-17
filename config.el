@@ -101,7 +101,7 @@ otherwise delete ARG characters backward."
 
 (setq-default indent-tabs-mode nil)
 
-(vlad/load-config-file "ya.el")
+(load-file (locate-user-emacs-file "ya.el"))
 
 ;; --- themes ---
 
