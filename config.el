@@ -192,10 +192,8 @@ folder, otherwise delete a character backward"
 (use-package evil-anzu
   :after evil
   :straight t
-  :hook (evil-mode-hook . global-anzu-mode)
   :config
-  (with-eval-after-load 'evil
-    (require 'evil-anzu)))
+  (global-anzu-mode))
 
 ;; Documentation: https://github.com/noctuid/general.el
 (use-package general
