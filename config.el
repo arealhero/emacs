@@ -108,27 +108,24 @@ folder, otherwise delete a character backward"
 
 ;; --- themes ---
 
-(use-package nano-theme
+(use-package ef-themes
   :straight t)
+
+(load-theme 'ef-night t)
 
 (use-package lambda-themes
   :straight (:type git :host github :repo "lambda-emacs/lambda-themes")
+  :defer t
   :custom
   (lambda-themes-set-italic-comments nil)
   (lambda-themes-set-italic-keywords nil)
-  (lambda-themes-set-variable-pitch nil)
-
-  :config
-  (load-theme 'lambda-dark t)
-  )
+  (lambda-themes-set-variable-pitch nil))
 
 (use-package doom-themes
   :straight t
+  :defer t
   :config
   (setq doom-themes-enable-italic nil))
-
-(use-package vscode-dark-plus-theme
-  :straight t)
 
 (use-package all-the-icons
   :straight t
