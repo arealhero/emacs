@@ -48,7 +48,7 @@ otherwise delete ARG characters backward."
   (interactive "p")
   (if (and minibuffer-completing-file-name (string-suffix-p "/" (minibuffer-contents)))
       (vertico-directory-up)
-    (delete-char arg)))
+    (backward-delete-char arg)))
 
 (use-package orderless
   :straight t
