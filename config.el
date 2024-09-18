@@ -805,6 +805,14 @@ otherwise delete ARG characters backward."
   (defun vlad/org-agenda-generate-group (header category)
     `((:name ,(concat (all-the-icons-faicon "exclamation") " " header " ── Deadline")
             :and (:deadline today :category ,category :not (:tag "event"))
+            :order 3
+            :face 'error)
+
+      (:name ,(concat (all-the-icons-faicon "exclamation") " " header " ── Overdue")
+             ;;; (:deadline past OR :scheduled past) AND (:category ,category AND :not (:tag "event"))
+             ;;; => :not (:not :deadline past AND :not :scheduled past) AND (:category ,category AND :not (:tag "event"))
+             :and (:not (:and (:not (:deadline past) :not (:scheduled past)))
+                        :and (:category ,category :not (:tag "event")))
             :order 2
             :face 'error)
 
@@ -814,12 +822,7 @@ otherwise delete ARG characters backward."
     )
 
   (setq org-super-agenda-groups
-        `((:name ,vlad/org-agenda-overdue-header
-                 :scheduled past
-                 :order 2
-                 :face 'error)
-
-          (:name "Habits"
+        `((:name "Habits"
                  :and (:tag "habit")
                  :order 100)
 
@@ -829,6 +832,12 @@ otherwise delete ARG characters backward."
           ,@(vlad/org-agenda-generate-group "University" "university")
           ,@(vlad/org-agenda-generate-group "Personal" "personal")
           ,@(vlad/org-agenda-generate-group "Ricing" "ricing")
+
+          (:name ,vlad/org-agenda-overdue-header
+                 :scheduled past
+                 :deadline past
+                 :order 2
+                 :face 'error)
 
           (:name ,vlad/org-agenda-today-header
                  :time-grid t
