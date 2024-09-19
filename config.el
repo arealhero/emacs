@@ -762,7 +762,9 @@ otherwise delete ARG characters backward."
 
   ;; Turn on auto-mode, it's built into Org and much faster/more featured than
   ;; org-fragtog. (Remember to turn off/uninstall org-fragtog.)
-  (add-hook 'org-mode-hook 'org-latex-preview-auto-mode)
+  (add-hook 'org-mode-hook (lambda ()
+                             (org-latex-preview 'buffer)
+                             (org-latex-preview-auto-mode)))
 
   ;; Block C-n and C-p from opening up previews when using auto-mode
   (add-hook 'org-latex-preview-auto-ignored-commands 'next-line)
