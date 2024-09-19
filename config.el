@@ -1005,7 +1005,8 @@ Note that this function requires that `elfeed-search-remain-on-entry' is not nil
   (setq org-roam-node-display-template
 	(concat "${title:*} "
 		(propertize "${tags:10}" 'face 'org-tag)))
-  (org-roam-db-autosync-mode)
+  ;; See https://github.com/doomemacs/doomemacs/issues/8066
+  ;; (org-roam-db-autosync-mode)
 
   :general-config
   (general-def 'normal org-mode-map
