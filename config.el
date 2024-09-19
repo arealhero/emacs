@@ -778,7 +778,16 @@ otherwise delete ARG characters backward."
 
   ;; More immediate live-previews -- the default delay is 1 second
   (setq org-latex-preview-live-debounce 0.25)
-  )
+
+  ;;; --- org-babel ---
+
+  (require 'ob)
+  (org-babel-do-load-languages
+   'org-babel-load-languages '((C . t)
+                               (python . t)
+                               (shell . t)))
+
+  (setq org-babel-python-command "python3"))
 
 (use-package org-modern
   :straight t
