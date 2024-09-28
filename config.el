@@ -497,7 +497,8 @@ otherwise delete ARG characters backward."
 
 (use-package cmake-ts-mode
   :defer t
-  :mode ("\\.cmake\\'" . cmake-ts-mode)
+  :mode (("\\.cmake\\'" . cmake-ts-mode)
+         ("CMakeLists\\.txt\\'" . cmake-ts-mode))
   )
 
 (setq major-mode-remap-alist
