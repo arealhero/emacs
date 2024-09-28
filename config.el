@@ -718,7 +718,8 @@ otherwise delete ARG characters backward."
   (defun vlad/sync-org-agenda-files ()
     "Syncronize org-agenda-files."
     (interactive)
-    (setq org-agenda-files (directory-files-recursively vlad/org-directory org-agenda-file-regexp)))
+    (setq org-agenda-files (directory-files-recursively vlad/org-directory org-agenda-file-regexp))
+    (org-roam-db-sync))
 
   (setq org-directory vlad/org-directory
         org-attach-use-inheritance t
