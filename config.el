@@ -245,7 +245,7 @@ otherwise delete ARG characters backward."
 
    "oc" 'vlad/open-config
 
-   "op" 'vlad/open-plan
+   "oi" 'vlad/open-inbox
    "ot" 'vlad/open-todo
 
    "pa" 'projectile-add-known-project

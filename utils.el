@@ -11,9 +11,9 @@
   (interactive)
   (vlad/open-org-file "diary.org"))
 
-(defun vlad/open-plan ()
+(defun vlad/open-inbox ()
   (interactive)
-  (vlad/open-org-file "plan.org"))
+  (vlad/open-org-file "inbox.org"))
 
 (defun vlad/open-todo ()
   (interactive)
