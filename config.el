@@ -725,6 +725,7 @@ otherwise delete ARG characters backward."
         org-attach-use-inheritance t
         org-hide-emphasis-markers nil
         org-startup-indented t
+        org-startup-folded 'nofold
         org-confirm-babel-evaluate nil
         org-deadline-warning-days 0)
 
