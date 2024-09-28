@@ -270,7 +270,7 @@ otherwise delete ARG characters backward."
    "ytc" (lambda () (interactive) (ya/for-each-test 'close))
    "yto" (lambda () (interactive) (ya/for-each-test 'open))
 
-   "<" 'switch-to-buffer
+   "<" 'consult-buffer
 
    "SPC" 'projectile-find-file)
 
@@ -333,7 +333,7 @@ otherwise delete ARG characters backward."
     "pi" 'projectile-invalidate-cache
     "pp" 'projectile-switch-project
 
-    "<" 'switch-to-buffer
+    "<" 'consult-buffer
 
     "f" 'find-file
     "." 'find-file
