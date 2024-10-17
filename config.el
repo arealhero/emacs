@@ -1,4 +1,4 @@
-;;; Code:
+;;; Code:  -*- lexical-binding: t; -*-
 
 ;; Personal information
 (setq user-full-name "Vladislav Sharshukov"
