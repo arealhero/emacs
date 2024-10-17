@@ -481,14 +481,14 @@ otherwise delete ARG characters backward."
     (typescript "https://github.com/tree-sitter/tree-sitter-typescript"
                 "master"
                 "typescript/src")
-    ;; (yaml "https://github.com/ikatyang/tree-sitter-yaml")
+    (yaml "https://github.com/ikatyang/tree-sitter-yaml")
     ))
 
-(add-to-list 'major-mode-remap-alist `(json-mode . json-ts-mode))
 (use-package json-ts-mode
   :defer t
   :config
   (add-hook 'json-ts-mode-hook (lambda () (setq standard-indent 2)))
+  (add-to-list 'major-mode-remap-alist `(json-mode . json-ts-mode))
   )
 
 (use-package typescript-ts-mode
@@ -506,8 +506,18 @@ otherwise delete ARG characters backward."
          ("CMakeLists\\.txt\\'" . cmake-ts-mode))
   )
 
-(setq major-mode-remap-alist
-      '((json-mode . json-ts-mode)))
+(use-package yaml-mode
+  :straight t
+  :defer t
+  :mode (("\\.clang-format\\'" . yaml-mode)
+         ("\\.clang-tidy\\'" . yaml-mode))
+  )
+
+;; (use-package yaml-ts-mode
+;;   :defer t
+;;   :mode (("\\.yml\\'" . yaml-ts-mode)
+;;          ("\\.clang-format\\'" . yaml-ts-mode))
+;;   )
 
 ;; --- Lsp ---
 (use-package lsp-mode
@@ -1085,10 +1095,6 @@ Note that this function requires that `elfeed-search-remain-on-entry' is not nil
   :config
   (setq-default hippie-expand-try-functions-list
                 '(yas-hippie-try-expand emmet-expand-line)))
-
-(use-package yaml-mode
-  :straight t
-  :defer t)
 
 (use-package undo-tree
   :after evil
