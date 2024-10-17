@@ -97,7 +97,8 @@ otherwise delete ARG characters backward."
 (add-hook 'c++-mode-hook
           (lambda ()
             (setq-default standard-indent 4
-                          c-basic-offset 4)))
+                          c-basic-offset 4)
+            (setq c-basic-offset 4)))
 
 (setq-default indent-tabs-mode nil)
 
