@@ -272,6 +272,8 @@ otherwise delete ARG characters backward."
 
    "<" 'consult-buffer
 
+   "." 'find-file
+
    "SPC" 'projectile-find-file)
 
   (general-def 'visual
@@ -348,6 +350,7 @@ otherwise delete ARG characters backward."
   (general-def 'normal lsp-mode-map
     :prefix "SPC"
     "rf" 'lsp-find-references
+    "rw" 'lsp-restart-workspace
     "ca" 'lsp-execute-code-action
     "cr" 'lsp-rename)
 
