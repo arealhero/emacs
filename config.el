@@ -435,7 +435,8 @@ otherwise delete ARG characters backward."
   )
 
 (use-package protobuf-mode
-  :straight t)
+  :straight t
+  :mode (("\\.ev\\'" . protobuf-mode)))
 
 ;; --- tree-sitter ---
 
