@@ -12,7 +12,7 @@
     default-value))
 
 (defconst vlad/cache-dir (file-name-as-directory (expand-file-name (vlad/get-env-var "XDG_CACHE_HOME" "~/.cache"))))
-(defconst vlad/data-dir (expand-file-name (vlad/get-env-var "XDG_DATA_DIR" "~/data"))) ;; TODO: this is not XDG's
+(defconst vlad/data-dir (file-name-as-directory (expand-file-name (vlad/get-env-var "XDG_DATA_DIR" "~/data")))) ;; TODO: this is not XDG's
 (defconst vlad/org-files-dir (file-name-as-directory (expand-file-name "org" vlad/data-dir)))
 
 (defconst vlad/emacs-cache-dir (expand-file-name "emacs" vlad/cache-dir))
