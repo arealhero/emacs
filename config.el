@@ -262,13 +262,21 @@ otherwise delete ARG characters backward."
   (when tab-bar-mode
     (tab-bar-close-other-tabs)
     (tab-bar-mode -1))
-  (let* ((killable-major-modes '(dired-mode ibuffer-mode))
-         (killable-buffer-p (lambda (buffer) (or (buffer-file-name buffer)
-                                                 (memq (buffer-local-value 'major-mode buffer)
-                                                       killable-major-modes)))))
+  (let* ((killable-major-modes '(dired-mode
+                                 ibuffer-mode
+                                 help-mode
+                                 magit-status-mode
+                                 magit-process-mode
+                                 magit-diff-mode
+                                 ))
+         (killable-buffer-p (lambda (buffer)
+                              (or (buffer-file-name buffer)
+                                  (memq (buffer-local-value 'major-mode buffer)
+                                        killable-major-modes)))))
     (mapc 'kill-buffer
           (delq (current-buffer)
-                (cl-remove-if-not killable-buffer-p (buffer-list))))))
+                (cl-remove-if-not killable-buffer-p (buffer-list))))
+    (delete-other-windows)))
 
 ;; FIXME(vlad): move all general's bindings to separate file.
 ;; Documentation: https://github.com/noctuid/general.el
