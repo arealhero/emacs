@@ -15,6 +15,10 @@
 
 (blink-cursor-mode -1)
 
+(defun darwin-system-p ()
+  "Return non-nil if Emacs was built for a Darwin system (macOS)."
+  (eq system-type 'darwin))
+
 ;; NOTE: pixelwise resizing of windows and frames.
 (setq window-resize-pixelwise t
       frame-resize-pixelwise t)
@@ -48,10 +52,9 @@
 
 (global-hl-line-mode 1)
 
-(use-package display-fill-column-indicator
-  :config
-  (setq-default fill-column 120)
-  (global-display-fill-column-indicator-mode))
+(require 'display-fill-column-indicator)
+(setq-default fill-column 120)
+(global-display-fill-column-indicator-mode)
 
 (column-number-mode)
 
@@ -102,26 +105,26 @@ otherwise delete ARG characters backward."
 
   (setq savehist-file (expand-file-name "savehist-history" vlad/package-cache-dir)))
 
-(defun darwin-system-p ()
-  "Return non-nil if Emacs was built for a Darwin system (macOS)."
-  (eq system-type 'darwin))
-
-;; --- tree-sitter ---
-
 (require 'vlad-tree-sitter)
 
-(use-package hideshow
-  :straight t
-  :diminish
-  :hook
-  (c++-ts-mode . hs-minor-mode)
-  (c-ts-mode . hs-minor-mode))
+;; @ref: https://emacs.stackexchange.com/questions/598/how-do-i-prevent-extremely-long-lines-making-emacs-slow/603#603
+(setq-default bidi-paragraph-direction 'left-to-right)
+(setq-default bidi-inhibit-bpa t)
+
+(add-hook 'c-ts-mode-hook 'hs-minor-mode)
+(add-hook 'c++-ts-mode-hook 'hs-minor-mode)
+
+(add-hook 'hs-minor-mode-hook (lambda () (interactive) (diminish 'hs-minor-mode)))
+;; (use-package hideshow
+;;   :straight t
+;;   :diminish
+;;   :hook
+;;   (c++-ts-mode . hs-minor-mode)
+;;   (c-ts-mode . hs-minor-mode))
 
 (when (darwin-system-p)
-  (when (boundp 'mac-option-modifier)
-    (setq mac-option-modifier 'meta))
-  (when (boundp 'mac-command-modifier)
-    (setq mac-command-modifier 'super)))
+  (setq mac-option-modifier 'meta)
+  (setq mac-command-modifier 'super))
 
 (setq delete-by-moving-to-trash nil)
 (setq ring-bell-function 'ignore)
@@ -162,6 +165,7 @@ otherwise delete ARG characters backward."
 ;; (setq-default truncate-lines t)
 
 (global-visual-line-mode)
+(diminish 'visual-line-mode)
 
 (use-package evil
   :straight t
@@ -185,12 +189,25 @@ otherwise delete ARG characters backward."
         (clang-format-region beg end)
         (evil-force-normal-state)))))
 
+(use-package undo-tree
+  :after evil
+  :straight t
+  :diminish
+  :config
+  (global-undo-tree-mode)
+  (evil-set-undo-system 'undo-tree)
+
+  (defconst vlad/undo-tree-cache-dir (vlad/get-cache-dir "undo-tree"))
+  (setq undo-tree-history-directory-alist
+        `((".*" . ,vlad/undo-tree-cache-dir))))
+
 ;; (use-package evil-anzu
 ;;   :after evil
 ;;   :straight t
 ;;   :config
 ;;   (global-anzu-mode))
 
+;; FIXME(vlad): use `comment-line' instead. I don't use motions when commenting.
 (use-package evil-commentary
   :straight t
   :diminish
@@ -204,6 +221,7 @@ otherwise delete ARG characters backward."
   :config
   (setq clang-format-style "file"))
 
+;; FIXME(vlad): support buffer names like `file.c<folder>'
 (defun vlad/c-switch-between-header-and-source-files ()
   "Switch between header and source C files."
   (interactive)
@@ -217,9 +235,9 @@ otherwise delete ARG characters backward."
 
 (require 'dired)
 (setq dired-listing-switches "-alhv --group-directories-first")
-(keymap-set dired-mode-map "-" 'dired-up-directory)
 
-(add-hook 'dired-mode-hook (lambda () (interactive) (auto-revert-mode 1)))
+(add-hook 'dired-mode-hook 'auto-revert-mode)
+(add-hook 'auto-revert-mode-hook (lambda () (interactive) (diminish 'auto-revert-mode)))
 
 ;; --- utils ---
 
@@ -296,27 +314,16 @@ otherwise delete ARG characters backward."
 
    "oc" 'vlad/open-config
 
-   "pc" 'compile
-
-   ;; "pa" 'projectile-add-known-project
-   ;; "pc" 'projectile-compile-project
-   ;; "pd" 'projectile-remove-known-project
-   ;; "pi" 'projectile-invalidate-cache
-   ;; "pp" 'projectile-switch-project
    "pv" (lambda () (interactive) (dired "."))
 
-   "ps" 'rgrep
-
+   ;; FIXME(vlad): modify `consult-themes' to remove Emacs' junk like `light-blue' and whatnot.
    "ht" 'consult-theme
 
    "up" 'straight-pull-all
 
    "<" 'consult-buffer
 
-   "." 'find-file
-
-   ;; "SPC" 'projectile-find-file
-   )
+   "." 'find-file)
 
   (general-def 'visual
     "M-v" 'yank)
@@ -340,6 +347,10 @@ otherwise delete ARG characters backward."
     "C-Л" 'vlad/font-inc
     "M-v" 'yank
     "M-n" 'evil-buffer-new
+
+    ;; FIXME(vlad): use these: evil's alternatives do not respect visual lines.
+    ;; "C-u" 'scroll-down-command
+    ;; "C-d" 'scroll-up-command
 
     "]g" 'next-error
     "[g" 'previous-error
@@ -376,38 +387,30 @@ otherwise delete ARG characters backward."
 
     "oc" 'vlad/open-config
 
-    ;; "pa" 'projectile-add-known-project
-    ;; "pd" 'projectile-remove-known-project
-    ;; "pf" 'projectile-find-file
-    ;; "pi" 'projectile-invalidate-cache
-    ;; "pp" 'projectile-switch-project
-
-    ;; "ps" 'projectile-ripgrep
-
     "<" 'consult-buffer
 
-    "." 'find-file
-    ;; "SPC" 'projectile-find-file
+    "." 'find-file)
+
+  (general-def 'normal '(c-ts-mode-map c++-ts-mode-map)
+    :mode 'normal
+    "=" 'vlad/clang-format-region
+
+    :mode 'visual
+    "=" 'vlad/clang-format-region
     )
 
-  (general-def 'normal c++-ts-mode-map
-    "=" 'vlad/clang-format-region)
+  ;; (general-def 'visual '(c-ts-mode-map c++-ts-mode-map)
+  ;;   "=" 'vlad/clang-format-region)
 
-  (general-def 'visual c++-ts-mode-map
-    "=" 'vlad/clang-format-region)
-
-  (general-def 'normal c-ts-mode-map
-    "=" 'vlad/clang-format-region)
-  (general-def 'visual c-ts-mode-map
-    "=" 'vlad/clang-format-region)
   (general-def 'normal c-ts-mode-map
     :prefix "SPC"
     "s" 'vlad/c-switch-between-header-and-source-files)
 
   (general-def 'normal compilation-mode-map
     "s-n" 'next-error)
-
   )
+
+(require 'vlad-projects)
 
 ;; (use-package projectile
 ;;   :straight t
@@ -514,31 +517,20 @@ otherwise delete ARG characters backward."
 (setq-default display-line-numbers-type 'relative
               display-line-numbers-width-start t)
 
-(use-package undo-tree
-  :after evil
-  :straight t
-  :diminish
-  :config
-  (global-undo-tree-mode)
-  (evil-set-undo-system 'undo-tree)
-
-  (defconst vlad/undo-tree-cache-dir (vlad/get-cache-dir "undo-tree"))
-  (setq undo-tree-history-directory-alist
-        `((".*" . ,vlad/undo-tree-cache-dir))))
+(global-eldoc-mode -1)
 
 ;; NOTE(vlad): this package is used to highlight tabs and trailing spaces.
-(use-package whitespace
-  :diminish
-  :config
-  (setq whitespace-style '(face
-                           tabs
-                           trailing
-                           space-before-tab
-                           indentation
-                           space-after-tab
-                           tab-mark
-                           missing-newline-at-eof))
-  (global-whitespace-mode))
+(require 'whitespace)
+(diminish 'whitespace-mode)
+(setq whitespace-style '(face
+                         tabs
+                         trailing
+                         space-before-tab
+                         indentation
+                         space-after-tab
+                         tab-mark
+                         missing-newline-at-eof))
+(global-whitespace-mode)
 
 (provide 'config)
 ;;; config.el ends here

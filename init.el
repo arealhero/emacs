@@ -1,3 +1,5 @@
+;; -*- lexical-binding: t; -*-
+
 (setq process-adaptive-read-buffering nil)
 
 (when (boundp 'read-process-output-max)

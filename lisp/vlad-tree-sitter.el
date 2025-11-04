@@ -13,7 +13,6 @@
       '(
         ;; (bash "https://github.com/tree-sitter/tree-sitter-bash")
         (cmake "https://github.com/uyha/tree-sitter-cmake")
-
         ;; (common-lisp "https://github.com/theHamsta/tree-sitter-commonlisp")
         (c "https://github.com/tree-sitter/tree-sitter-c")
         (cpp "https://github.com/tree-sitter/tree-sitter-cpp")
@@ -24,7 +23,7 @@
         ;; (go-mod "https://github.com/camdencheek/tree-sitter-go-mod")
         ;; (html "https://github.com/tree-sitter/tree-sitter-html")
         ;; (js . ("https://github.com/tree-sitter/tree-sitter-javascript" "master" "src"))
-        ;; (json "https://github.com/tree-sitter/tree-sitter-json")
+        (json "https://github.com/tree-sitter/tree-sitter-json")
         ;; (lua "https://github.com/Azganoth/tree-sitter-lua")
         ;; (make "https://github.com/alemuller/tree-sitter-make")
         ;; (markdown "https://github.com/ikatyang/tree-sitter-markdown")
@@ -42,10 +41,16 @@
         ))
 ;; (setq treesit-load-name-override-list '((js "libtree-sitter-js" "tree_sitter_javascript")))
 
+(if (darwin-system-p)
+    (defconst vlad/dynamic-library-suffix ".dylib")
+  (defconst vlad/dynamic-library-suffix ".so"))
+
 (dolist (pair treesit-language-source-alist)
   (let ((language (car pair)))
     (unless (file-regular-p (expand-file-name
-                             (concat "libtree-sitter-" (symbol-name language) ".so")
+                             (concat "libtree-sitter-"
+                                     (symbol-name language)
+                                     vlad/dynamic-library-suffix)
                              vlad/treesit-cache-dir))
       (treesit-install-language-grammar language vlad/treesit-cache-dir))))
 
@@ -53,6 +58,7 @@
  '((c-mode . c-ts-mode)
    (c++-mode . c++-ts-mode)
    (c-or-c++-mode . c-or-c++-ts-mode)
+   (js-json-mode . json-ts-mode)
    (python-mode . python-ts-mode)))
 
 ;; (setq c-ts-mode-indent-style nil)
@@ -62,13 +68,11 @@
 (add-to-list 'semantic-symref-filepattern-alist '(c-ts-mode "*.[ch]"))
 
 ;; (add-to-list 'auto-mode-alist '("\\.h\\'" . c++-ts-mode))
-;; (use-package json-ts-mode
-;;   :after treesit
-;;   :defer t
-;;   :config
-;;   (add-hook 'json-ts-mode-hook (lambda () (setq standard-indent 2)))
-;;   (add-to-list 'major-mode-remap-alist `(json-mode . json-ts-mode))
-;;   )
+(use-package json-ts-mode
+  :after treesit
+  :defer t
+  :config
+  (add-hook 'json-ts-mode-hook (lambda () (setq standard-indent 2))))
 
 (use-package cmake-ts-mode
   :after treesit
