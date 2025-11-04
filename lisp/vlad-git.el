@@ -7,6 +7,7 @@
 ;; --- git ---
 (use-package magit
   :straight t
+  :after general
 
   :config
   (setq magit-delete-by-moving-to-trash nil)
@@ -14,6 +15,7 @@
   (setq transient-history-file (expand-file-name "transient-history" vlad/package-cache-dir))
 
   :general-config
+  ;; FIXME(vlad): move to `vlad-keymaps.el' or something.
   (general-def 'normal '(general-default-keymaps
                          dired-mode-map)
     :prefix "SPC"
@@ -53,7 +55,8 @@
   (general-def 'visual '(magit-mode-map
                          magit-file-section-map
                          magit-status-mode-map)
-    "s" 'magit-stage)
+    "s" 'magit-stage
+    "u" 'magit-unstage)
 
   ;; FIXME(vlad): move to vlad-describe.el
   (general-def 'normal '(magit-mode-map

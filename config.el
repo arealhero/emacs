@@ -208,6 +208,7 @@ otherwise delete ARG characters backward."
 ;;   (global-anzu-mode))
 
 ;; FIXME(vlad): use `comment-line' instead. I don't use motions when commenting.
+;;              Although it does not work well with visual mode (like `magit-stash').
 (use-package evil-commentary
   :straight t
   :diminish
@@ -267,8 +268,7 @@ otherwise delete ARG characters backward."
                                  help-mode
                                  magit-status-mode
                                  magit-process-mode
-                                 magit-diff-mode
-                                 ))
+                                 magit-diff-mode))
          (killable-buffer-p (lambda (buffer)
                               (or (buffer-file-name buffer)
                                   (memq (buffer-local-value 'major-mode buffer)
@@ -278,7 +278,7 @@ otherwise delete ARG characters backward."
                 (cl-remove-if-not killable-buffer-p (buffer-list))))
     (delete-other-windows)))
 
-;; FIXME(vlad): move all general's bindings to separate file.
+;; FIXME(vlad): move all general's bindings to a separate file.
 ;; Documentation: https://github.com/noctuid/general.el
 (use-package general
   :after evil
@@ -447,7 +447,9 @@ otherwise delete ARG characters backward."
   (setq company-global-modes '(not erc-mode message-mode eshell-mode))
 
   (add-hook 'c-ts-mode-hook
-            (lambda () (when (file-remote-p default-directory) (company-mode -1))))
+            (lambda ()
+              (when (file-remote-p default-directory)
+                (company-mode -1))))
 
   ;; XXX(vlad): do I want to be able to see documentation? Probably not, but not sure.
   ;; (define-key company-active-map (kbd "C-h") nil)
