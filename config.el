@@ -317,6 +317,10 @@ otherwise delete ARG characters backward."
    "kr" (lambda () (interactive) (yank-pop))
 
    "mt" 'tab-bar-new-tab
+   "mc" (lambda ()
+          (interactive)
+          (tab-bar-close-other-tabs)
+          (tab-bar-mode -1))
 
    "oc" 'vlad/open-config
 
@@ -338,6 +342,9 @@ otherwise delete ARG characters backward."
     "s-n" 'next-error
     "s-p" 'previous-error
 
+    "]g" 'next-error
+    "[g" 'previous-error
+
     ;; FIXME(vlad): don't call `execute-extended-command' if one was already called
     "s-x" 'execute-extended-command
 
@@ -358,9 +365,6 @@ otherwise delete ARG characters backward."
     ;;              Also don't forget to change them in `vlad-git.el'
     ;; "C-u" 'scroll-down-command
     ;; "C-d" 'scroll-up-command
-
-    "]g" 'next-error
-    "[g" 'previous-error
     )
 
   (general-def 'normal profiler-report-mode-map
