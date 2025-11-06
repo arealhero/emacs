@@ -4,7 +4,14 @@
 
 ;;; Code:
 
-;; --- C++ ---
+;; (setq c-ts-mode-indent-style nil)
+(setq c-ts-mode-indent-offset 4)
+
+(require 'semantic/symref/grep)
+(add-to-list 'semantic-symref-filepattern-alist '(c-ts-mode "*.[ch]"))
+
+;; (add-to-list 'auto-mode-alist '("\\.h\\'" . c++-ts-mode))
+
 (use-package clang-format
   :straight t
   :defer t

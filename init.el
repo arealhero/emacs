@@ -47,7 +47,10 @@
 (require 'vlad/packages/diminish)
 
 ;; NOTE(vlad): language-specific configuration.
+(require 'vlad/lang/cmake)
 (require 'vlad/lang/cxx)
+(require 'vlad/lang/json)
+(require 'vlad/lang/yaml)
 
 ;; NOTE(vlad): my packages.
 (require 'vlad/fixme)

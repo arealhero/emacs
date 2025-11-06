@@ -62,36 +62,5 @@
    (js-json-mode . json-ts-mode)
    (python-mode . python-ts-mode)))
 
-;; (setq c-ts-mode-indent-style nil)
-(setq c-ts-mode-indent-offset 4)
-
-(require 'semantic/symref/grep)
-(add-to-list 'semantic-symref-filepattern-alist '(c-ts-mode "*.[ch]"))
-
-;; FIXME(vlad): move to the `lang' folder.
-;; (add-to-list 'auto-mode-alist '("\\.h\\'" . c++-ts-mode))
-(use-package json-ts-mode
-  :after treesit
-  :defer t
-  :config
-  (add-hook 'json-ts-mode-hook (lambda () (setq standard-indent 2))))
-
-(use-package cmake-ts-mode
-  :after treesit
-  :defer t
-  :mode (("\\.cmake\\'" . cmake-ts-mode)
-         ("CMakeLists\\.txt\\'" . cmake-ts-mode)
-         ;; FIXME(vlad): move to vlad-ya.el
-         ("ya\\.make\\'" . cmake-ts-mode)))
-
-(use-package yaml-ts-mode
-  :after treesit
-  :defer t
-  :mode (("\\.yaml\\'" . yaml-ts-mode)
-         ("\\.yml\\'" . yaml-ts-mode)
-         ("\\.clang-format\\'" . yaml-ts-mode)
-         ("\\.clang-tidy\\'" . yaml-ts-mode)
-         ("\\.clangd\\'" . yaml-ts-mode)))
-
 (provide 'vlad/emacs/tree-sitter)
 ;;; vlad/emacs/tree-sitter.el ends here
