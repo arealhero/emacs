@@ -6,6 +6,7 @@
 
 ;; FIXME(vlad): set consult-project-function to a `vlad/projects.el' function.
 ;; FIXME(vlad): bind consult-imenu -- seems useful.
+;; FIXME(vlad): modify `consult-themes' to remove Emacs' junk like `light-blue' and whatnot.
 (use-package consult
   :straight t)
 

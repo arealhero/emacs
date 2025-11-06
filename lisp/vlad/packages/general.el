@@ -15,53 +15,6 @@
   (general-def
     "<escape>" 'keyboard-escape-quit)
 
-  (general-def 'minibuffer-mode-map
-    "M-v" 'yank
-    "s-v" 'yank
-    "C-w" 'backward-kill-word
-    "C-ц" 'backward-kill-word
-    "<backspace>" 'vlad/minibuffer-backward-kill
-    "DEL" 'vlad/minibuffer-backward-kill)
-
-  (general-def 'normal
-   :prefix "SPC"
-   "bc" 'vlad/kill-other-buffers
-
-   "fs" 'grep-find
-
-   "hf" 'describe-function
-   "hk" 'describe-key
-   "hv" 'describe-variable
-   "hm" 'describe-mode
-
-   "kr" (lambda () (interactive) (yank-pop))
-
-   "mt" 'tab-bar-new-tab
-   "mc" 'vlad/close-other-tabs
-
-   "gg" 'magit
-
-   "oc" 'vlad/open-config
-
-   "pv" 'vlad/open-current-directory-in-dired
-
-   ;; FIXME(vlad): modify `consult-themes' to remove Emacs' junk like `light-blue' and whatnot.
-   "ht" 'consult-theme
-
-   "up" 'straight-pull-all
-
-   "<" 'consult-buffer
-
-   "." 'find-file)
-
-  (general-def 'insert
-    "M-v" 'yank
-    "s-v" 'yank
-    "C-ц" 'evil-delete-backward-word)
-
-  (general-def 'visual
-    "M-v" 'yank)
-
   (general-def 'normal
     "s-n" 'next-error
     "s-p" 'previous-error
@@ -84,18 +37,90 @@
     "M-v" 'yank
     "M-n" 'evil-buffer-new
 
+    "s-v" (lambda () (interactive) (yank-pop))
+
     ;; FIXME(vlad): use these: evil's alternatives do not respect visual lines.
     ;;              Also don't forget to change them in `vlad-git.el'
     ;; "C-u" 'scroll-down-command
     ;; "C-d" 'scroll-up-command
     )
 
+  (general-def 'normal '(general-default-keymaps
+                         dired-mode-map
+                         magit-mode-map
+                         magit-file-section-map
+                         magit-status-mode-map)
+   :prefix "SPC"
+   "bc" 'vlad/kill-other-buffers
+
+   "dt" 'org-roam-dailies-goto-today
+   "dy" 'org-roam-dailies-goto-yesterday
+
+   "fs" 'grep-find
+
+   "gg" 'magit
+
+   "hf" 'describe-function
+   "hk" 'describe-key
+   "hm" 'describe-mode
+   "ht" 'consult-theme
+   "hv" 'describe-variable
+
+   "mc" 'vlad/close-other-tabs
+   "mt" 'tab-bar-new-tab
+
+   "nf" 'org-roam-node-find
+   "ni" 'org-roam-node-insert
+   "ns" 'org-roam-db-sync
+   "nt" 'org-roam-buffer-toggle
+
+   "oc" 'vlad/open-config
+   "op" 'vlad/open-plan
+
+   "pv" 'vlad/open-current-directory-in-dired
+
+   "up" 'straight-pull-all
+
+   "<" 'consult-buffer
+
+   "." 'find-file)
+
+  (general-def 'insert
+    "C-c C-i" 'org-roam-node-insert
+
+    "M-v" 'yank
+    "s-v" 'yank
+
+    "C-ц" 'evil-delete-backward-word)
+
+  (general-def 'visual
+    "M-v" 'yank
+    ;; FIXME(vlad): enable this and remove `evil-commentary' dependency.
+    ;; "gc" 'comment-or-uncomment-region
+
+    "C-x C-;" 'comment-or-uncomment-region)
+
+  ;; ----- Profiler -----
   (general-def 'normal profiler-report-mode-map
     "TAB" 'profiler-report-toggle-entry)
 
   (general-def 'normal xref--xref-buffer-mode-map
     "RET" 'xref-show-location-at-point)
 
+  ;; ----- Minibuffer -----
+  (general-def 'minibuffer-mode-map
+    "M-v" 'yank
+    "s-v" 'yank
+    "C-w" 'backward-kill-word
+    "C-ц" 'backward-kill-word
+    "<backspace>" 'vlad/minibuffer-backward-kill
+    "DEL" 'vlad/minibuffer-backward-kill)
+
+  ;; ----- Compilation -----
+  (general-def 'normal compilation-mode-map
+    "s-n" 'next-error)
+
+  ;; ----- Dired -----
   (general-def 'normal dired-mode-map
     "0" 'evil-beginning-of-line
     "$" 'evil-end-of-line
@@ -109,99 +134,59 @@
 
     "w" 'evil-forward-word-begin)
 
-  (general-def 'normal dired-mode-map
-    :prefix "SPC"
-
-    "hf" 'describe-function
-    "hk" 'describe-key
-    "hv" 'describe-variable
-    "hm" 'describe-mode
-
-    "ht" 'consult-theme
-
-    "mt" 'tab-bar-move-window-to-tab
-
-    "gg" 'magit
-
-    "oc" 'vlad/open-config
-    "op" 'vlad/open-plan
-
-    "<" 'consult-buffer
-
-    "." 'find-file)
-
-  ;; ----- org-mode-map -----
+  ;; ----- org-mode -----
   (general-def 'normal org-mode-map
     "TAB" 'org-cycle
     "C-k" 'org-timestamp-up
     "C-j" 'org-timestamp-down)
 
+  (general-def 'normal org-mode-map
+   :prefix "SPC"
+
+   ;; FIXME(vlad): resolve this collision.
+   ;; "aa" 'org-attach-attach
+   "aa" 'org-roam-alias-add
+   "ar" 'org-roam-alias-remove
+
+   "c" 'org-ctrl-c-ctrl-c
+
+   "il" 'org-insert-link
+
+   "lt" 'vlad/org-log-current-time
+
+   "nc" 'org-id-get-create
+   "nn" 'org-roam-dailies-goto-next-note
+   "np" 'org-roam-dailies-goto-previous-note
+
+   "oo" 'org-open-at-point
+
+   "t" 'org-todo)
+
   (general-def 'visual org-mode-map
     "M-h" 'org-metaleft
     "M-l" 'org-metaright)
 
-  (general-def 'normal org-mode-map
-   :prefix "SPC"
-   "aa" 'org-attach-attach
-   "c" 'org-ctrl-c-ctrl-c
-   "il" 'org-insert-link
-   "lt" 'vlad/org-log-current-time
-   "oo" 'org-open-at-point
-   "t" 'org-todo)
-
-  (general-def 'normal org-mode-map
-   :prefix "SPC"
-   "nn" 'org-roam-dailies-goto-next-note
-   "np" 'org-roam-dailies-goto-previous-note
-
-   "aa" 'org-roam-alias-add
-   "ar" 'org-roam-alias-remove
-
-   "nc" 'org-id-get-create
-   )
-
-  ;; ----- org-mode-map -----
-  (general-def 'normal
-   :prefix "SPC"
-   "dt" 'org-roam-dailies-goto-today
-   "dy" 'org-roam-dailies-goto-yesterday
-
-   "nf" 'org-roam-node-find
-   "ni" 'org-roam-node-insert
-   "ns" 'org-roam-db-sync
-   "nt" 'org-roam-buffer-toggle
-   )
-
-  (general-def 'insert
-   "C-c C-i" 'org-roam-node-insert
-   )
-
-  (general-def 'normal dired-mode-map
-    :prefix "SPC"
-
-    "dt" 'org-roam-dailies-goto-today
-    "dy" 'org-roam-dailies-goto-yesterday
-
-    "nf" 'org-roam-node-find
-    "ni" 'org-roam-node-insert
-    "ns" 'org-roam-db-sync
-    "nt" 'org-roam-buffer-toggle)
-
+  ;; ----- Magit -----
   (general-def 'emacs '(magit-mode-map
                         magit-file-section-map
                         magit-status-mode-map)
+    "/" 'evil-ex-search-forward
+
+    "G" 'evil-goto-line
+    "gg" 'evil-goto-first-line
+
+    "V" 'evil-visual-screen-line
+
+    "gT" 'tab-bar-switch-to-prev-tab
+    "gt" 'evil-tab-next
+
+    "h" 'left-char
     "j" 'magit-next-line
     "k" 'magit-previous-line
     "l" 'right-char
-    "h" 'left-char
 
-    "gg" 'evil-goto-first-line
-    "G" 'evil-goto-line
-
-    "gt" 'evil-tab-next
-    "gT" 'tab-bar-switch-to-prev-tab
-
-    "V" 'evil-visual-screen-line
+    "n" 'evil-ex-search-next
+    "p" 'evil-ex-search-previous
 
     "C-d" 'evil-scroll-down
     "C-u" 'evil-scroll-up
@@ -212,11 +197,7 @@
     "C-w l" 'evil-window-right
 
     "C-j" 'magit-section-forward
-    "C-k" 'magit-section-backward
-
-    "/" 'evil-ex-search-forward
-    "n" 'evil-ex-search-next
-    "p" 'evil-ex-search-previous)
+    "C-k" 'magit-section-backward)
 
   (general-def 'visual '(magit-mode-map
                          magit-file-section-map
@@ -224,20 +205,8 @@
     "s" 'magit-stage
     "u" 'magit-unstage)
 
-  ;; FIXME(vlad): move to vlad-describe.el
-  (general-def 'normal '(magit-mode-map
-                         magit-file-section-map
-                         magit-status-mode-map)
-    :prefix "SPC"
-    "h f" 'describe-function
-    "h k" 'describe-key
-    "h m" 'describe-mode
-    "h v" 'describe-variable)
-
+  ;; ----- C/C++ -----
   (general-def 'normal '(c-ts-mode-map c++-ts-mode-map)
-    "=" 'vlad/clang-format-region)
-
-  (general-def 'visual '(c-ts-mode-map c++-ts-mode-map)
     "=" 'vlad/clang-format-region)
 
   (general-def 'normal '(c-ts-mode-map c++-ts-mode-map)
@@ -245,8 +214,8 @@
     "s" 'vlad/cxx-switch-between-header-and-source-files
     "t" 'vlad/cxx-open-unit-test-file)
 
-  (general-def 'normal compilation-mode-map
-    "s-n" 'next-error)
+  (general-def 'visual '(c-ts-mode-map c++-ts-mode-map)
+    "=" 'vlad/clang-format-region)
   )
 
 (provide 'vlad/packages/general)

@@ -13,6 +13,7 @@
   (setq-default evil-symbol-word-search t)
 
   (setq evil-want-C-u-scroll t
+        evil-v$-excludes-newline t
         evil-respect-visual-line-mode t
         evil-search-module 'evil-search)
 
