@@ -78,7 +78,9 @@
   :after treesit
   :defer t
   :mode (("\\.cmake\\'" . cmake-ts-mode)
-         ("CMakeLists\\.txt\\'" . cmake-ts-mode)))
+         ("CMakeLists\\.txt\\'" . cmake-ts-mode)
+         ;; FIXME(vlad): move to vlad-ya.el
+         ("ya\\.make\\'" . cmake-ts-mode)))
 
 (use-package yaml-ts-mode
   :after treesit

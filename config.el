@@ -15,6 +15,9 @@
 
 (blink-cursor-mode -1)
 
+(defun vlad/normalize-directory (directory)
+  (file-name-as-directory (expand-file-name directory)))
+
 (defun darwin-system-p ()
   "Return non-nil if Emacs was built for a Darwin system (macOS)."
   (eq system-type 'darwin))
@@ -42,7 +45,10 @@
 
 (defun vlad/get-cache-dir (dir)
   "Get `DIR' in Emacs' cache directory."
-  (file-name-as-directory (vlad/get-cache-file dir)))
+  (let ((cache-dir (file-name-as-directory (vlad/get-cache-file dir))))
+    (unless (file-directory-p cache-dir)
+      (make-directory cache-dir))
+    cache-dir))
 
 (defconst vlad/package-cache-dir (vlad/get-cache-file "package-cache"))
 
@@ -99,28 +105,21 @@ otherwise delete ARG characters backward."
 ;;   :config
 ;;   (marginalia-mode))
 
-(use-package savehist
-  :config
-  (savehist-mode)
-
-  (setq savehist-file (expand-file-name "savehist-history" vlad/package-cache-dir)))
-
-(require 'vlad-tree-sitter)
+(require 'savehist)
+(setq savehist-file (expand-file-name "savehist-history" vlad/package-cache-dir))
+(savehist-mode)
 
 ;; @ref: https://emacs.stackexchange.com/questions/598/how-do-i-prevent-extremely-long-lines-making-emacs-slow/603#603
 (setq-default bidi-paragraph-direction 'left-to-right)
 (setq-default bidi-inhibit-bpa t)
 
+(require 'vlad-tree-sitter)
+
+(require 'hideshow)
 (add-hook 'c-ts-mode-hook 'hs-minor-mode)
 (add-hook 'c++-ts-mode-hook 'hs-minor-mode)
 
 (add-hook 'hs-minor-mode-hook (lambda () (interactive) (diminish 'hs-minor-mode)))
-;; (use-package hideshow
-;;   :straight t
-;;   :diminish
-;;   :hook
-;;   (c++-ts-mode . hs-minor-mode)
-;;   (c-ts-mode . hs-minor-mode))
 
 (when (darwin-system-p)
   (setq mac-option-modifier 'meta)
@@ -148,7 +147,7 @@ otherwise delete ARG characters backward."
       auto-save-list-file-prefix vlad/emacs-backup-dir
       lock-file-name-transforms `((".*" ,vlad/emacs-lock-files-dir t)))
 
-(setq bookmark-default-file (vlad/get-cache-dir "bookmarks"))
+(setq bookmark-default-file (vlad/get-cache-file "bookmarks"))
 
 ;; Indentation settings
 (setq standard-indent 4)
@@ -167,6 +166,32 @@ otherwise delete ARG characters backward."
 (global-visual-line-mode)
 (diminish 'visual-line-mode)
 
+;; --- Misc ---
+(electric-pair-mode 1)
+;; (setq electric-pair-preserve-balance nil)
+(setq-default electric-pair-inhibit-predicate 'electric-pair-conservative-inhibit)
+
+;; (global-display-line-numbers-mode 1)
+;; See https://libreddit.tiekoetter.com/r/emacs/comments/8pfdlb/weird_shifting_problem_with_new_emacs_line_numbers/
+(setq-default display-line-numbers-type 'relative
+              display-line-numbers-width-start t)
+
+(global-eldoc-mode -1)
+
+;; NOTE(vlad): this package is used to highlight tabs and trailing spaces.
+(require 'whitespace)
+(diminish 'whitespace-mode)
+(setq whitespace-style '(face
+                         tabs
+                         trailing
+                         space-before-tab
+                         indentation
+                         space-after-tab
+                         tab-mark
+                         missing-newline-at-eof))
+(global-whitespace-mode)
+
+;; --- evil ---
 (use-package evil
   :straight t
   :init
@@ -180,6 +205,7 @@ otherwise delete ARG characters backward."
   :config
   (evil-mode)
 
+  ;; FIXME(vlad): move to `lang/vlad-cxx'?
   (evil-define-operator vlad/clang-format-region (beg end)
     :move-point nil
     :type line
@@ -208,31 +234,15 @@ otherwise delete ARG characters backward."
 ;;   (global-anzu-mode))
 
 ;; FIXME(vlad): use `comment-line' instead. I don't use motions when commenting.
-;;              Although it does not work well with visual mode (like `magit-stash').
+;;              Although it does not work well with visual mode (like `magit-stash') -- it comments out one more line
+;;              than highlighted.
 (use-package evil-commentary
   :straight t
   :diminish
   :hook
   (after-init . evil-commentary-mode))
 
-;; --- C++ ---
-(use-package clang-format
-  :straight t
-  :defer t
-  :config
-  (setq clang-format-style "file"))
-
-;; FIXME(vlad): support buffer names like `file.c<folder>'
-(defun vlad/c-switch-between-header-and-source-files ()
-  "Switch between header and source C files."
-  (interactive)
-  (let* ((current-file (buffer-name))
-         (other-file (if (string-equal (file-name-extension current-file) "c")
-                         (file-name-with-extension current-file "h")
-                       (file-name-with-extension current-file "c"))))
-    (if (file-exists-p other-file)
-        (find-file other-file)
-      (message "File '%s' does not exist" other-file))))
+(require 'lang/vlad-cxx)
 
 (require 'dired)
 (setq dired-listing-switches "-alhv --group-directories-first")
@@ -245,6 +255,10 @@ otherwise delete ARG characters backward."
 (defun vlad/open-config ()
   (interactive)
   (find-file (expand-file-name "config.el" user-emacs-directory)))
+
+(defun vlad/open-plan ()
+  (interactive)
+  (find-file (expand-file-name "plan.org" vlad/org-files-dir)))
 
 (defun vlad/font-adjust (increment)
   (let ((inhibit-message t))
@@ -298,11 +312,6 @@ otherwise delete ARG characters backward."
     "<backspace>" 'vlad/minibuffer-backward-kill
     "DEL" 'vlad/minibuffer-backward-kill)
 
-  (general-def 'insert
-    "M-v" 'yank
-    "s-v" 'yank
-    "C-ц" 'evil-delete-backward-word)
-
   (general-def 'normal
    :prefix "SPC"
    "bc" 'vlad/kill-other-buffers
@@ -335,6 +344,11 @@ otherwise delete ARG characters backward."
 
    "." 'find-file)
 
+  (general-def 'insert
+    "M-v" 'yank
+    "s-v" 'yank
+    "C-ц" 'evil-delete-backward-word)
+
   (general-def 'visual
     "M-v" 'yank)
 
@@ -342,8 +356,8 @@ otherwise delete ARG characters backward."
     "s-n" 'next-error
     "s-p" 'previous-error
 
-    "]g" 'next-error
-    "[g" 'previous-error
+    "]g" 'flymake-goto-next-error
+    "[g" 'flymake-goto-prev-error
 
     ;; FIXME(vlad): don't call `execute-extended-command' if one was already called
     "s-x" 'execute-extended-command
@@ -352,7 +366,6 @@ otherwise delete ARG characters backward."
     "s-&" 'async-shell-command
 
     "C-x C-b" 'ibuffer
-    "C-x c" 'execute-extended-command
 
     "C-S-j" 'vlad/font-dec
     "C-О" 'vlad/font-dec
@@ -397,25 +410,22 @@ otherwise delete ARG characters backward."
     "mt" 'tab-bar-move-window-to-tab
 
     "oc" 'vlad/open-config
+    "op" 'vlad/open-plan
 
     "<" 'consult-buffer
 
     "." 'find-file)
 
   (general-def 'normal '(c-ts-mode-map c++-ts-mode-map)
-    :mode 'normal
-    "=" 'vlad/clang-format-region
+    "=" 'vlad/clang-format-region)
 
-    :mode 'visual
-    "=" 'vlad/clang-format-region
-    )
+  (general-def 'visual '(c-ts-mode-map c++-ts-mode-map)
+    "=" 'vlad/clang-format-region)
 
-  ;; (general-def 'visual '(c-ts-mode-map c++-ts-mode-map)
-  ;;   "=" 'vlad/clang-format-region)
-
-  (general-def 'normal c-ts-mode-map
+  (general-def 'normal '(c-ts-mode-map c++-ts-mode-map)
     :prefix "SPC"
-    "s" 'vlad/c-switch-between-header-and-source-files)
+    "s" 'vlad/cxx-switch-between-header-and-source-files
+    "t" 'vlad/cxx-open-unit-test-file)
 
   (general-def 'normal compilation-mode-map
     "s-n" 'next-error)
@@ -423,6 +433,8 @@ otherwise delete ARG characters backward."
 
 (require 'vlad-projects)
 (require 'vlad-git)
+
+(vlad-projects-mode 1)
 
 ;; (use-package projectile
 ;;   :straight t
@@ -471,30 +483,7 @@ otherwise delete ARG characters backward."
 ;;   :hook
 ;;   (after-init . global-flycheck-mode))
 
-;; --- Misc ---
-(electric-pair-mode 1)
-;; (setq electric-pair-preserve-balance nil)
-(setq-default electric-pair-inhibit-predicate 'electric-pair-conservative-inhibit)
-
-;; (global-display-line-numbers-mode 1)
-;; See https://libreddit.tiekoetter.com/r/emacs/comments/8pfdlb/weird_shifting_problem_with_new_emacs_line_numbers/
-(setq-default display-line-numbers-type 'relative
-              display-line-numbers-width-start t)
-
-(global-eldoc-mode -1)
-
-;; NOTE(vlad): this package is used to highlight tabs and trailing spaces.
-(require 'whitespace)
-(diminish 'whitespace-mode)
-(setq whitespace-style '(face
-                         tabs
-                         trailing
-                         space-before-tab
-                         indentation
-                         space-after-tab
-                         tab-mark
-                         missing-newline-at-eof))
-(global-whitespace-mode)
+(require 'vlad-ya)
 
 (provide 'config)
 ;;; config.el ends here
