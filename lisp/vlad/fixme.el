@@ -60,6 +60,37 @@
     (or (nth 4 ppss)     ;; Line comment.
         (nth 7 ppss))))  ;; Block comment.
 
+;; FIXME(vlad): I cannot highlight multiple TODO keywords in a single line using this matcher.
+;;              Although it would be nice to use it to enable fontification overriding,
+;;              I'm commenting this out for now.
+;; (defun vlad/fixme--get-keywords-matcher (regexp)
+;;   (lambda (limit)
+;;     (let (found)
+;;       (while (and (not found)
+;;                   (re-search-forward regexp limit t))
+;;         (let ((start (match-beginning 0))
+;;               (end (match-end 0)))
+;;           (when (vlad/in-comment-p)
+;;             (set-match-data (list start end
+;;                                   (match-beginning 1) (match-end 1)   ;; Keyword group
+;;                                   (match-beginning 2) (match-end 2))) ;; Username group
+;;             (setq found t))))
+;;       found))
+;;   )
+
+;; (defconst vlad/fixme-keywords
+;;   `(
+;;     ;; Highlight all TODO keywords in comments
+;;     (,(vlad/fixme--get-keywords-matcher vlad/todo-keywords-group)
+;;      (1 'vlad/todo t)
+;;      (2 'vlad/username t))
+
+;;     ;; Highlight all NOTE keywords in comments
+;;     (,(vlad/fixme--get-keywords-matcher vlad/note-keywords-group)
+;;      (1 'vlad/note t)
+;;      (2 'vlad/username t))
+;;     ))
+
 (defconst vlad/fixme-keywords
   `(
     ;; Highlight all TODO keywords in comments
