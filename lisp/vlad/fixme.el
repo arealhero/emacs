@@ -63,41 +63,49 @@
     (or (nth 4 ppss)     ;; Line comment.
         (nth 7 ppss))))  ;; Block comment.
 
-(defun vlad/fixme-fontify-mode (&optional mode)
-  (interactive)
-  (unless mode (setq mode major-mode))
+(defconst vlad/fixme-keywords
+  `(
+    ;; Highlight all TODO keywords in comments
+    (,(rx (regexp vlad/todo-keywords-group))
+     (1 (when (vlad/in-comment-p)
+          'vlad/todo)
+        prepend))
 
-  (font-lock-add-keywords
-   mode
-   `(
-     ;; Highlight all TODO keywords in comments
-     (,(rx (regexp vlad/todo-keywords-group))
-      (1 (when (vlad/in-comment-p)
-           'vlad/todo)
-         prepend))
+    ;; Highlight all NOTE keywords in comments
+    (,(rx (regexp vlad/note-keywords-group))
+     (1 (when (vlad/in-comment-p)
+          'vlad/note)
+        prepend))
 
-     ;; Highlight all NOTE keywords in comments
-     (,(rx (regexp vlad/note-keywords-group))
-      (1 (when (vlad/in-comment-p)
-           'vlad/note)
-         prepend))
+    ;; Highlight all usernames after the TODO keywords in comments
+    (,(rx (or (regexp vlad/todo-keywords-group)
+              (regexp vlad/note-keywords-group))
+          "(" word-start
+          (group (one-or-more (not ")")))
+          word-end ")")
+     (3 (when (vlad/in-comment-p)
+          'vlad/username)
+        prepend))
+    ))
 
-     ;; Highlight all usernames after the TODO keywords in comments
-     (,(rx (or (regexp vlad/todo-keywords-group)
-               (regexp vlad/note-keywords-group))
-           "(" word-start
-           (group (one-or-more (not ")")))
-           word-end ")")
-      (3 (when (vlad/in-comment-p)
-           'vlad/username)
-         prepend))
-     )))
+(define-minor-mode vlad/fixme-mode
+  "Highlight TODO, FIXME, etc in comments."
+  :lighter ""
+  :group 'vlad/fixme
+  (if vlad/fixme-mode
+      (font-lock-add-keywords nil vlad/fixme-keywords t)
+    (font-lock-remove-keywords nil vlad/fixme-keywords))
+  (font-lock-flush))
 
-;; (mapc 'vlad/fixme-fontify-mode vlad/fixme-modes)
+(define-globalized-minor-mode vlad/global-fixme-mode
+  vlad/fixme-mode vlad/fixme--turn-on-mode-if-needed)
 
-(add-hook 'prog-mode-hook
-          (lambda ()
-            (vlad/fixme-fontify-mode major-mode)))
+(defun vlad/fixme--turn-on-mode-if-needed ()
+  (when (and (apply #'derived-mode-p '(prog-mode))
+             (not (string-prefix-p " *temp*" (buffer-name))))
+    (vlad/fixme-mode)))
+
+(vlad/global-fixme-mode 1)
 
 (provide 'vlad/fixme)
 ;;; vlad/fixme.el ends here
