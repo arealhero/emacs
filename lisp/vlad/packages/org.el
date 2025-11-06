@@ -1,4 +1,4 @@
-;; vlad-org.el --- My org-mode settings.  -*- lexical-binding: t; -*-
+;; vlad/packages/org.el --- My org-mode settings.  -*- lexical-binding: t; -*-
 
 ;;; Commentary:
 
@@ -6,11 +6,6 @@
 ;;;             @ref: https://github.com/hasu/notdeft
 
 ;;; Code:
-
-(defun vlad/get-current-time-string ()
-  "Get current time as string."
-  (interactive)
-  (format-time-string "%H:%M:%S" (current-time)))
 
 (defun vlad/org-log-current-time ()
   "Add current time to the nearest header."
@@ -53,8 +48,33 @@
         org-confirm-babel-evaluate nil
         org-deadline-warning-days 0)
 
-  (add-hook 'after-init-hook 'vlad/sync-org-roam-db)
-  (add-hook 'org-roam-mode-hook 'vlad/sync-org-roam-db)
+  ;; Enable consistent equation numbering
+  (setq org-latex-preview-numbered t)
+
+  ;; Bonus: Turn on live previews.  This shows you a live preview of a LaTeX
+  ;; fragment and updates the preview in real-time as you edit it.
+  ;; To preview only environments, set it to '(block edit-special) instead
+  (setq org-latex-preview-mode-display-live nil)
+
+  ;; More immediate live-previews -- the default delay is 1 second
+  (setq org-latex-preview-mode-update-delay 0.25)
+
+  (setq org-latex-packages-alist '())
+  (add-to-list 'org-latex-packages-alist '("" "amssymb" t))
+  (add-to-list 'org-latex-packages-alist '("" "amsmath" t))
+
+  ;; Increase preview width
+  (plist-put org-latex-preview-appearance-options
+             :page-width 0.9)
+  (plist-put org-latex-preview-appearance-options
+             :scale 1.5)
+  (plist-put org-latex-preview-appearance-options
+             :zoom 1.5)
+
+  ;; Use dvisvgm to generate previews
+  ;; You don't need this, it's the default:
+  (setq org-latex-preview-process-default 'dvisvgm)
+  (setq org-latex-preview-cache vlad/org-latex-preview-cache-dir)
 
   (add-hook 'org-mode-hook (lambda ()
                              (setq fill-column 90)))
@@ -73,29 +93,6 @@
                 (add-to-list 'org-file-apps '("\\.webm\\'" . "mpv --speed=1.75 --fs %s"))
                 (add-to-list 'org-file-apps '("\\.mkv\\'" . "mpv --speed=1.75 --fs %s"))))
 
-  ;; Latex previews
-
-  ;; Increase preview width
-  (plist-put org-latex-preview-appearance-options
-             :page-width 0.9)
-  (plist-put org-latex-preview-appearance-options
-             :scale 1.5)
-  (plist-put org-latex-preview-appearance-options
-             :zoom 1.5)
-
-  (setq org-latex-packages-alist '())
-  (add-to-list 'org-latex-packages-alist '("" "amssymb" t))
-  (add-to-list 'org-latex-packages-alist '("" "amsmath" t))
-
-  ;; Use dvisvgm to generate previews
-  ;; You don't need this, it's the default:
-  (setq org-latex-preview-process-default 'dvisvgm)
-
-  (defconst vlad/org-latex-preview-cache-dir (vlad/get-cache-dir "org-latex-preview"))
-  (unless (file-exists-p vlad/org-latex-preview-cache-dir)
-    (make-directory vlad/org-latex-preview-cache-dir))
-  (setq org-latex-preview-cache vlad/org-latex-preview-cache-dir)
-
   ;; Turn on auto-mode, it's built into Org and much faster/more featured than
   ;; org-fragtog. (Remember to turn off/uninstall org-fragtog.)
   (add-hook 'org-mode-hook (lambda ()
@@ -105,39 +102,7 @@
   ;; FIXME(vlad): change to `evil-next-visual-line' and `evil-previous-visual-line'.
   ;; Block C-n and C-p from opening up previews when using auto-mode
   (add-hook 'org-latex-preview-ignored-commands 'next-line)
-  (add-hook 'org-latex-preview-ignored-commands 'previous-line)
-
-  ;; Enable consistent equation numbering
-  (setq org-latex-preview-numbered t)
-
-  ;; Bonus: Turn on live previews.  This shows you a live preview of a LaTeX
-  ;; fragment and updates the preview in real-time as you edit it.
-  ;; To preview only environments, set it to '(block edit-special) instead
-  (setq org-latex-preview-mode-display-live nil)
-
-  ;; More immediate live-previews -- the default delay is 1 second
-  (setq org-latex-preview-mode-update-delay 0.25)
-
-  :general-config
-
-  (general-def 'normal org-mode-map
-    "TAB" 'org-cycle
-    "C-k" 'org-timestamp-up
-    "C-j" 'org-timestamp-down)
-
-  (general-def 'visual org-mode-map
-    "M-h" 'org-metaleft
-    "M-l" 'org-metaright)
-
-  (general-def 'normal org-mode-map
-   :prefix "SPC"
-   "aa" 'org-attach-attach
-   "c" 'org-ctrl-c-ctrl-c
-   "il" 'org-insert-link
-   "lt" 'vlad/org-log-current-time
-   "oo" 'org-open-at-point
-   "t" 'org-todo)
-  )
+  (add-hook 'org-latex-preview-ignored-commands 'previous-line))
 
 ;; ------------------------------
 ;; |          org-roam          |
@@ -145,10 +110,8 @@
 
 (use-package org-roam
   :straight t
-  :defer t
 
   :config
-
   (defconst vlad/daily-template
     ":PROPERTIES:
 :CATEGORY: Daily [%<%Y-%m-%d>]
@@ -256,48 +219,13 @@
         (concat "${title:*} "
                 (propertize "${tags}" 'face 'org-tag)))
 
-  :general-config
-  (general-def 'normal org-mode-map
-   :prefix "SPC"
-   "nn" 'org-roam-dailies-goto-next-note
-   "np" 'org-roam-dailies-goto-previous-note
+  ;; FIXME(vlad): move to org-roam
+  (add-hook 'after-init-hook 'vlad/sync-org-roam-db)
+  (add-hook 'org-roam-mode-hook 'vlad/sync-org-roam-db)
 
-   "aa" 'org-roam-alias-add
-   "ar" 'org-roam-alias-remove
-
-   "nc" 'org-id-get-create
-   )
-
-  (general-def 'normal
-   :prefix "SPC"
-   "dt" 'org-roam-dailies-goto-today
-   "dy" 'org-roam-dailies-goto-yesterday
-
-   "nf" 'org-roam-node-find
-   "ni" 'org-roam-node-insert
-   "ns" 'org-roam-db-sync
-   "nt" 'org-roam-buffer-toggle
-   )
-
-  (general-def 'insert
-   "C-c C-i" 'org-roam-node-insert
-   )
-
-  (general-def 'normal dired-mode-map
-    :prefix "SPC"
-
-    "dt" 'org-roam-dailies-goto-today
-    "dy" 'org-roam-dailies-goto-yesterday
-
-    "nf" 'org-roam-node-find
-    "ni" 'org-roam-node-insert
-    "ns" 'org-roam-db-sync
-    "nt" 'org-roam-buffer-toggle)
-  )
-
-;; NOTE(vlad): comment out the next line if you get an error `(wrong-type-argument sqlitep nil)' during startup.
-;;             @ref: https://github.com/doomemacs/doomemacs/issues/8066
-(org-roam-db-autosync-mode)
+  ;; NOTE(vlad): comment out the next line if you get an error `(wrong-type-argument sqlitep nil)' during startup.
+  ;;             @ref: https://github.com/doomemacs/doomemacs/issues/8066
+  (org-roam-db-autosync-mode 1))
 
 (use-package org-roam-ui
   :straight t
@@ -306,8 +234,7 @@
   :config
   (setq org-roam-ui-sync-theme t
         org-roam-ui-follow t
-        org-roam-ui-update-on-save t)
-  )
+        org-roam-ui-update-on-save t))
 
-(provide 'vlad-org)
-;;; vlad-org.el ends here
+(provide 'vlad/packages/org)
+;;; vlad/packages/org.el ends here

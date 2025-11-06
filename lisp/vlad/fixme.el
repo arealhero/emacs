@@ -1,4 +1,4 @@
-;;; vlad-fixme.el --- Fontify keywords in comments.  -*- lexical-binding: t; -*-
+;;; vlad/fixme.el --- Fontify keywords in comments.  -*- lexical-binding: t; -*-
 
 ;;; Commentary:
 
@@ -20,6 +20,7 @@
   '((t :foreground "dodger blue" :bold t))
   "Face for NOTE-like keywords.")
 
+;; FIXME(vlad): support light themes.
 (defface vlad/green
   '((t :foreground "wheat" :bold nil))
   "Face for the good things.")
@@ -93,5 +94,5 @@
           (lambda ()
             (vlad/fixme-fontify-mode major-mode)))
 
-(provide 'vlad-fixme)
-;;; vlad-fixme.el ends here
+(provide 'vlad/fixme)
+;;; vlad/fixme.el ends here

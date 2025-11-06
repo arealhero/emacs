@@ -1,4 +1,4 @@
-;;; lang/vlad-cxx.el --- My C/C++ settings.  -*- lexical-binding: t; -*-
+;;; vlad/lang/cxx.el --- My C/C++ settings.  -*- lexical-binding: t; -*-
 
 ;;; Commentary:
 
@@ -48,5 +48,5 @@
                      (t (error "Unable to find a unit test file"))))
     ))
 
-(provide 'lang/vlad-cxx)
-;;; lang/vlad-cxx.el ends here
+(provide 'vlad/lang/cxx)
+;;; vlad/lang/cxx.el ends here

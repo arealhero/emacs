@@ -1,4 +1,4 @@
-;; vlad-tree-sitter.el --- My tree-sitter settings.  -*- lexical-binding: t; -*-
+;; vlad/emacs/tree-sitter.el --- My tree-sitter configuration.  -*- lexical-binding: t; -*-
 
 ;;; Commentary:
 
@@ -7,7 +7,8 @@
 (require 'treesit)
 
 (defconst vlad/treesit-cache-dir (vlad/get-cache-dir "tree-sitter"))
-(setq treesit-extra-load-path `(,vlad/treesit-cache-dir))
+
+(setq treesit-extra-load-path (list vlad/treesit-cache-dir))
 (setq treesit-font-lock-level 4)
 (setq treesit-language-source-alist
       '(
@@ -41,7 +42,7 @@
         ))
 ;; (setq treesit-load-name-override-list '((js "libtree-sitter-js" "tree_sitter_javascript")))
 
-(if (darwin-system-p)
+(if (vlad/macos-system-p)
     (defconst vlad/dynamic-library-suffix ".dylib")
   (defconst vlad/dynamic-library-suffix ".so"))
 
@@ -67,6 +68,7 @@
 (require 'semantic/symref/grep)
 (add-to-list 'semantic-symref-filepattern-alist '(c-ts-mode "*.[ch]"))
 
+;; FIXME(vlad): move to the `lang' folder.
 ;; (add-to-list 'auto-mode-alist '("\\.h\\'" . c++-ts-mode))
 (use-package json-ts-mode
   :after treesit
@@ -91,5 +93,5 @@
          ("\\.clang-tidy\\'" . yaml-ts-mode)
          ("\\.clangd\\'" . yaml-ts-mode)))
 
-(provide 'vlad-tree-sitter)
-;;; vlad-tree-sitter.el ends here
+(provide 'vlad/emacs/tree-sitter)
+;;; vlad/emacs/tree-sitter.el ends here

@@ -7,18 +7,11 @@
 (push '(vertical-scroll-bars) default-frame-alist)
 (push '(horizontal-scroll-bars) default-frame-alist)
 
-(defun vlad/get-env-var (variable default-value)
-  "Get env variable `VARIABLE' or return `DEFAULT-VALUE' if `VARIABLE' is not set."
-  (if-let (value (getenv variable))
-      value
-    default-value))
+(add-to-list 'load-path (locate-user-emacs-file "lisp"))
 
-(defconst vlad/cache-dir (file-name-as-directory (expand-file-name (vlad/get-env-var "XDG_CACHE_HOME" "~/.cache"))))
-(defconst vlad/data-dir (file-name-as-directory (expand-file-name (vlad/get-env-var "XDG_DATA_DIR" "~/data")))) ;; TODO: this is not XDG's
-(defconst vlad/org-files-dir (file-name-as-directory (expand-file-name "org" vlad/data-dir)))
+(require 'vlad/emacs/early-init-utils)
 
-(defconst vlad/emacs-cache-dir (expand-file-name "emacs" vlad/cache-dir))
-(defconst vlad/emacs-eln-cache-dir (expand-file-name "eln-cache" vlad/emacs-cache-dir))
+;; FIXME(vlad): set package-user-dir
 
 (when (boundp 'native-comp-eln-load-path)
   (startup-redirect-eln-cache vlad/emacs-eln-cache-dir)

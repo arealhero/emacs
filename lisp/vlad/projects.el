@@ -1,4 +1,4 @@
-;;; vlad-projects.el --- Package for project management.  -*- lexical-binding: t; -*-
+;;; vlad/projects.el --- Package for project management.  -*- lexical-binding: t; -*-
 
 ;;; Commentary:
 
@@ -10,6 +10,23 @@
 
 ;; FIXME(vlad): support per-project directories blacklist.
 ;; ((nil . ((vlad/project-list-files-command . "fd . -0 -H --color=never --type file --type symlink --follow --exclude .git --exclude idm"))))
+
+;; (use-package projectile
+;;   :straight t
+;;   :diminish
+;;   :config
+;;   (projectile-mode)
+;;   (setq projectile-indexing-method 'alien ;; To be explicit
+;;         projectile-generic-command "fd . -0 -H --color=never --type file --type symlink --follow --exclude .git"
+;;         projectile-track-known-projects-automatically nil
+;;         projectile-switch-project-action 'projectile-dired)
+
+;;   (defconst vlad/projectile-cache-dir (vlad/get-cache-dir "projectile"))
+;;   (setq projectile-known-projects-file (expand-file-name "projectile-bookmarks.eld" vlad/projectile-cache-dir))
+
+;;   ;; NOTE(vlad): projectile unconditionally searches git submodules. This tricks projectile to run /usr/bin/true,
+;;   ;;             essentially returning empty submodules list.
+;;   (setq projectile-git-submodule-command "true"))
 
 (defun vlad/add-project (directory name)
   "Add DIRECTORY to the list of projects with NAME as its alias."
@@ -144,5 +161,7 @@ Runs `compile' at the current project's root."
 (vlad/load-projects-info)
 (add-hook 'kill-emacs-hook 'vlad/save-projects-info)
 
-(provide 'vlad-projects)
-;;; vlad-projects.el ends here
+(vlad-projects-mode 1)
+
+(provide 'vlad/projects)
+;;; vlad/projects.el ends here
