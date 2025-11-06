@@ -13,11 +13,11 @@
   :group 'files)
 
 (defface vlad/todo
-  '((t :foreground "red" :bold t))
+  '((t :foreground "red" :slant normal :bold t))
   "Face for TODO-like keywords.")
 
 (defface vlad/note
-  '((t :foreground "dodger blue" :bold t))
+  '((t :foreground "dodger blue" :slant normal :bold t))
   "Face for NOTE-like keywords.")
 
 ;; ;; FIXME(vlad): support light themes.
