@@ -47,6 +47,9 @@
                                                            (seq (any "Ff") "ixme")
                                                            (seq (any "Cc") "rit" (optional "ical")))))
                                               word-end
+                                              (optional (seq "("
+                                                             (one-or-more alnum)
+                                                             ")"))
                                               (optional ":"))))
 
 (defconst vlad/note-keywords-group (rx (group (or (seq word-start "NOTE")
@@ -55,6 +58,9 @@
                                                            (seq (any "Oo") "ptimization")
                                                            (seq (any "Rr") "ef" (optional "erence")))))
                                               word-end
+                                              (optional (seq "("
+                                                             (one-or-more alnum)
+                                                             ")"))
                                               (optional ":"))))
 
 (defun vlad/in-comment-p ()
