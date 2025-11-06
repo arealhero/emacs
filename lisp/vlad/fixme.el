@@ -20,10 +20,14 @@
   '((t :foreground "dodger blue" :bold t))
   "Face for NOTE-like keywords.")
 
-;; FIXME(vlad): support light themes.
-(defface vlad/green
-  '((t :foreground "wheat" :bold nil))
-  "Face for the good things.")
+;; ;; FIXME(vlad): support light themes.
+;; (defface vlad/username
+;;   '((t :foreground "wheat" :bold nil))
+;;   "Face for usernames in comments.")
+
+(defface vlad/username
+  '((t :inherit font-lock-type-face :slant normal :bold nil))
+  "Face for usernames in comments.")
 
 (defcustom vlad/fixme-modes
   '(c-mode
@@ -63,30 +67,31 @@
   (interactive)
   (unless mode (setq mode major-mode))
 
-  (font-lock-add-keywords mode
-                          `(
-                            ;; Highlight all TODO keywords in comments
-                            (,(rx (regexp vlad/todo-keywords-group))
-                             (1 (when (vlad/in-comment-p)
-                                  'vlad/todo)
-                                prepend))
+  (font-lock-add-keywords
+   mode
+   `(
+     ;; Highlight all TODO keywords in comments
+     (,(rx (regexp vlad/todo-keywords-group))
+      (1 (when (vlad/in-comment-p)
+           'vlad/todo)
+         prepend))
 
-                            ;; Highlight all NOTE keywords in comments
-                            (,(rx (regexp vlad/note-keywords-group))
-                             (1 (when (vlad/in-comment-p)
-                                  'vlad/note)
-                                prepend))
+     ;; Highlight all NOTE keywords in comments
+     (,(rx (regexp vlad/note-keywords-group))
+      (1 (when (vlad/in-comment-p)
+           'vlad/note)
+         prepend))
 
-                            ;; Highlight all usernames after the TODO keywords in comments
-                            (,(rx (or (regexp vlad/todo-keywords-group)
-                                      (regexp vlad/note-keywords-group))
-                                  "(" word-start
-                                  (group (one-or-more (not ")")))
-                                  word-end ")")
-                             (3 (when (vlad/in-comment-p)
-                                  'vlad/green)
-                                prepend))
-                          )))
+     ;; Highlight all usernames after the TODO keywords in comments
+     (,(rx (or (regexp vlad/todo-keywords-group)
+               (regexp vlad/note-keywords-group))
+           "(" word-start
+           (group (one-or-more (not ")")))
+           word-end ")")
+      (3 (when (vlad/in-comment-p)
+           'vlad/username)
+         prepend))
+     )))
 
 ;; (mapc 'vlad/fixme-fontify-mode vlad/fixme-modes)
 
