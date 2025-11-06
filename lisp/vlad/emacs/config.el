@@ -74,6 +74,10 @@
 (setq savehist-file (expand-file-name "savehist-history" vlad/package-cache-dir))
 (savehist-mode)
 
+(setq display-time-format "%Y-%m-%d %H:%M"
+      display-time-default-load-average nil)
+(display-time)
+
 ;; --- Misc ---
 (electric-pair-mode 1)
 ;; (setq electric-pair-preserve-balance nil)
