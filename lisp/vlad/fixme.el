@@ -92,6 +92,31 @@
              (not (string-prefix-p " *temp*" (buffer-name))))
     (vlad/fixme-mode)))
 
+;; FIXME(vlad): enable `treesit'-powered keyword highlighting.
+;; (defun my-highlight-keywords-in-comment (node override start end &rest _)
+;;   "Highlight specific keywords within comment nodes."
+;;   (let ((text (treesit-node-text node)))
+;;     (message "treesit text: %s" text)
+;;     (save-match-data
+;;       (when (string-match "\\<\\(TODO\\|FIXME\\)\\>" text)
+;;         (message "treesit matched!")
+;;         (treesit-fontify-with-override
+;;          (+ (treesit-node-start node) (match-beginning 1))
+;;          (+ (treesit-node-start node) (match-end 1))
+;;          'font-lock-warning-face override start end)))))
+
+;; (add-hook 'cmake-ts-mode-hook
+;;           (lambda ()
+;;             (setq-local treesit-font-lock-settings
+;;                         (append treesit-font-lock-settings
+;;                                 (treesit-font-lock-rules
+;;                                  :language 'cmake
+;;                                  :override t
+;;                                  :feature 'comment
+;;                                  '((comment) @my-highlight-keywords-in-comment))))
+;;             (treesit-major-mode-setup)
+;;             ))
+
 (vlad/global-fixme-mode 1)
 
 (provide 'vlad/fixme)
