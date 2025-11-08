@@ -9,6 +9,7 @@
 (defconst ya/arcadia-root (file-name-as-directory (expand-file-name "~/arcadia")))
 (defconst ya/arcadia-url "https://a.yandex-team.ru/arcadia/")
 
+;; FIXME(vlad): support upper case only.
 (defconst ya/tracker-ticket-regexp (rx (group bow
                                               (group (one-or-more alpha) "-" (one-or-more digit))
                                               eow)))
@@ -28,6 +29,8 @@
         lsp-lens-enable t
         lsp-headerline-breadcrumb-enable nil
         lsp-enable-symbol-highlighting t
+        lsp-enable-on-type-formatting nil
+        lsp-enable-indentation nil
         lsp-apply-edits-after-file-operations nil ;; See https://old.reddit.com/r/emacs/comments/1b0ppls/anyone_using_lspmode_with_tsls_having_trouble/
         lsp-enable-file-watchers nil) ;; TODO(arealhero): disable watchers for pyright only
 
@@ -60,12 +63,26 @@
     "rw" 'lsp-restart-workspace)
   )
 
+(use-package lsp-pyright
+  :straight t)
+
 ;; NOTE(vlad): for terraform
 (use-package hcl-mode
   :straight t
   :mode (("\\.tf\\'" . hcl-mode)))
 
-(defun ya/configure-c++ ()
+(use-package protobuf-mode
+  :straight t
+  :mode (("\\.ev\\'" . protobuf-mode))
+  :config
+  (add-hook 'protobuf-mode-hook
+            (lambda ()
+              (setq-default standard-indent 4
+                            c-basic-offset 4)
+              (setq c-basic-offset 4)))
+  )
+
+(defun ya/configure-prog-mode ()
   (when (ya/in-arcadia-p)
     (setq bug-reference-bug-regexp ya/tracker-ticket-regexp)
     (setq bug-reference-url-format "https://st.yandex-team.ru/%s")
@@ -73,8 +90,9 @@
     (bug-reference-prog-mode 1)
     (lsp-mode)))
 
-(add-hook 'c-ts-mode-hook 'ya/configure-c++)
-(add-hook 'c++-ts-mode-hook 'ya/configure-c++)
+(add-hook 'c-ts-mode-hook 'ya/configure-prog-mode)
+(add-hook 'c++-ts-mode-hook 'ya/configure-prog-mode)
+(add-hook 'python-ts-mode-hook 'ya/configure-prog-mode)
 
 (defun ya/get-current-line-number ()
   (interactive)
