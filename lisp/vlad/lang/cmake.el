@@ -7,7 +7,10 @@
 (use-package cmake-ts-mode
   :after treesit
   :defer t
-  :mode (("ya\\.make\\'" . cmake-ts-mode))) ;; FIXME(vlad): move to vlad-ya.el
+  :mode (("\\.cmake\\'" . cmake-ts-mode)
+         ("CMakeLists\\.txt\\'" . cmake-ts-mode)
+         ;; FIXME(vlad): move to vlad-ya.el
+         ("ya\\.make\\'" . cmake-ts-mode)))
 
 (provide 'vlad/lang/cmake)
 ;;; vlad/lang/cmake.el ends here
