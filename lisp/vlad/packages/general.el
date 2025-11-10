@@ -212,7 +212,16 @@
   (general-def 'normal '(c-ts-mode-map c++-ts-mode-map)
     :prefix "SPC"
     "s" 'vlad/cxx-switch-between-header-and-source-files
-    "t" 'vlad/cxx-open-unit-test-file)
+    "t" 'vlad/cxx-open-unit-test-file
+
+    "K" 'eldoc
+    "ca" 'eglot-code-actions
+    "cr" 'eglot-rename
+    "lh" 'eglot-inlay-hints-mode
+    "rf" 'xref-find-references
+    "rn" 'eglot-rename
+    "rw" 'eglot-reconnect
+    )
 
   (general-def 'visual '(c-ts-mode-map c++-ts-mode-map)
     "=" 'vlad/clang-format-region)
