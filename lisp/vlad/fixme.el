@@ -3,8 +3,7 @@
 ;;; Commentary:
 
 ;; TODO(vlad):
-;;   - support `tree-sitter'
-;;   - support case-insensitivity?
+;;   - support light themes.
 
 ;;; Code:
 
@@ -19,11 +18,6 @@
 (defface vlad/note
   '((t :foreground "dodger blue" :slant normal :bold t))
   "Face for NOTE-like keywords.")
-
-;; ;; FIXME(vlad): support light themes.
-;; (defface vlad/username
-;;   '((t :foreground "wheat" :bold nil))
-;;   "Face for usernames in comments.")
 
 (defface vlad/username
   '((t :inherit font-lock-type-face :slant normal :bold nil))
@@ -60,48 +54,17 @@
     (or (nth 4 ppss)     ;; Line comment.
         (nth 7 ppss))))  ;; Block comment.
 
-;; FIXME(vlad): I cannot highlight multiple TODO keywords in a single line using this matcher.
-;;              Although it would be nice to use it to enable fontification overriding,
-;;              I'm commenting this out for now.
-;; (defun vlad/fixme--get-keywords-matcher (regexp)
-;;   (lambda (limit)
-;;     (let (found)
-;;       (while (and (not found)
-;;                   (re-search-forward regexp limit t))
-;;         (let ((start (match-beginning 0))
-;;               (end (match-end 0)))
-;;           (when (vlad/in-comment-p)
-;;             (set-match-data (list start end
-;;                                   (match-beginning 1) (match-end 1)   ;; Keyword group
-;;                                   (match-beginning 2) (match-end 2))) ;; Username group
-;;             (setq found t))))
-;;       found))
-;;   )
-
-;; (defconst vlad/fixme-keywords
-;;   `(
-;;     ;; Highlight all TODO keywords in comments
-;;     (,(vlad/fixme--get-keywords-matcher vlad/todo-keywords-group)
-;;      (1 'vlad/todo t)
-;;      (2 'vlad/username t))
-
-;;     ;; Highlight all NOTE keywords in comments
-;;     (,(vlad/fixme--get-keywords-matcher vlad/note-keywords-group)
-;;      (1 'vlad/note t)
-;;      (2 'vlad/username t))
-;;     ))
-
 (defconst vlad/fixme-keywords
   `(
     ;; Highlight all TODO keywords in comments
     (,(rx (regexp vlad/todo-keywords-group))
      (1 (when (vlad/in-comment-p) 'vlad/todo) prepend)
-     (2 (when (vlad/in-comment-p) 'vlad/username) prepend))
+     (2 (when (vlad/in-comment-p) 'vlad/username) prepend t))
 
     ;; Highlight all NOTE keywords in comments
     (,(rx (regexp vlad/note-keywords-group))
      (1 (when (vlad/in-comment-p) 'vlad/note) prepend)
-     (2 (when (vlad/in-comment-p) 'vlad/username) prepend))
+     (2 (when (vlad/in-comment-p) 'vlad/username) prepend t))
     ))
 
 (define-minor-mode vlad/fixme-mode
@@ -122,31 +85,6 @@
   (when (and (apply #'derived-mode-p vlad/fixme-include-modes)
              (not (string-prefix-p " *temp*" (buffer-name))))
     (vlad/fixme-mode)))
-
-;; FIXME(vlad): enable `treesit'-powered keyword highlighting.
-;; (defun my-highlight-keywords-in-comment (node override start end &rest _)
-;;   "Highlight specific keywords within comment nodes."
-;;   (let ((text (treesit-node-text node)))
-;;     (message "treesit text: %s" text)
-;;     (save-match-data
-;;       (when (string-match "\\<\\(TODO\\|FIXME\\)\\>" text)
-;;         (message "treesit matched!")
-;;         (treesit-fontify-with-override
-;;          (+ (treesit-node-start node) (match-beginning 1))
-;;          (+ (treesit-node-start node) (match-end 1))
-;;          'font-lock-warning-face override start end)))))
-
-;; (add-hook 'cmake-ts-mode-hook
-;;           (lambda ()
-;;             (setq-local treesit-font-lock-settings
-;;                         (append treesit-font-lock-settings
-;;                                 (treesit-font-lock-rules
-;;                                  :language 'cmake
-;;                                  :override t
-;;                                  :feature 'comment
-;;                                  '((comment) @my-highlight-keywords-in-comment))))
-;;             (treesit-major-mode-setup)
-;;             ))
 
 (vlad/global-fixme-mode 1)
 
