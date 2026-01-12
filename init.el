@@ -21,18 +21,19 @@
 ;; NOTE(vlad): Emacs built-in packages configuration.
 (require 'vlad/emacs/dired)
 (require 'vlad/emacs/hideshow)
+(require 'vlad/emacs/compile)
 (require 'vlad/emacs/tree-sitter)
 
 ;; NOTE(vlad): use straight to fetch packages.
 (require 'vlad/packages/straight)
 
 (require 'vlad/packages/general)
-(require 'vlad/packages/company)
+;; (require 'vlad/packages/company)
 (require 'vlad/packages/consult)
 (require 'vlad/packages/evil)
 (require 'vlad/packages/magit)
 (require 'vlad/packages/minibuffer)
-(require 'vlad/packages/org)
+;;(require 'vlad/packages/org)
 (require 'vlad/packages/undo-tree)
 
 ;; FIXME(vlad): flycheck vs flymake.
@@ -55,6 +56,13 @@
 ;; NOTE(vlad): my packages.
 (require 'vlad/fixme)
 (require 'vlad/projects)
+(require 'vlad/debug)
+
+;; TODO(vlad): move to `vlad/emacs/octave.el'.
+;; FIXME(vlad): wrap `octave-source-file' so it could open inferior octave buffer in a split.
+;;              And also it should probably `erase-buffer' before sourcing file
+;;              also clearing and clearvars-ing existing octave session.
+(setq inferior-octave-startup-args '("-i" "-q" "--no-line-editing"))
 
 ;; (require 'vlad-ya)
 

@@ -81,6 +81,8 @@
 
    "up" 'straight-pull-all
 
+   "w" 'vlad/toggle-visual-line-mode
+
    "<" 'consult-buffer
 
    "." 'find-file)
@@ -206,25 +208,87 @@
     "u" 'magit-unstage)
 
   ;; ----- C/C++ -----
-  (general-def 'normal '(c-ts-mode-map c++-ts-mode-map)
-    "=" 'vlad/clang-format-region)
 
-  (general-def 'normal '(c-ts-mode-map c++-ts-mode-map)
+  (general-def 'normal '(c-mode-map c++-mode-map)
     :prefix "SPC"
+    "dp" 'vlad/gdb-print
+    "ds" 'vlad/start-debugger
+    "dk" 'vlad/stop-debugger
     "s" 'vlad/cxx-switch-between-header-and-source-files
-    "t" 'vlad/cxx-open-unit-test-file
+    "t" 'vlad/cxx-open-unit-test-file)
 
-    "K" 'eldoc
-    "ca" 'eglot-code-actions
-    "cr" 'eglot-rename
-    "lh" 'eglot-inlay-hints-mode
-    "rf" 'xref-find-references
-    "rn" 'eglot-rename
-    "rw" 'eglot-reconnect
+  (general-def 'normal '(c-mode-map c++-mode-map)
+    "<f5>" 'gud-run
+    "<f9>" 'vlad/toggle-breakpoint
+    "<f10>" 'gud-next
+    "<f11>" 'gud-step
+    "<f12>" 'gud-finish)
+
+  ;; (general-def 'visual '(c-mode-map c++-mode-map)
+  ;;   "=" 'vlad/clang-format-region)
+
+  ;; ----- Projects -----
+
+  (defun vlad/compile ()
+    (interactive)
+    (call-interactively #'compile))
+
+  (general-def 'normal '(general-default-keymaps dired-mode-map)
+    :prefix "SPC"
+
+    "c" 'vlad/compile
+
+    "pa" 'vlad/add-project
+    "pc" 'vlad/compile-project
+    "pd" 'vlad/remove-project
+    "pp" 'vlad/switch-project
+
+    ;; FIXME(vlad): this should be something like projectile-ripgrep.
+    ;; "ps" 'projectile-ripgrep
+    "ps" 'rgrep
+
+    "SPC" 'vlad/find-project-file
     )
 
-  (general-def 'visual '(c-ts-mode-map c++-ts-mode-map)
-    "=" 'vlad/clang-format-region)
+  ;; ----- Compilation -----
+
+  (general-def 'motion '(compilation-mode-map)
+   :prefix "SPC"
+   "bc" 'vlad/kill-other-buffers
+
+   "dt" 'org-roam-dailies-goto-today
+   "dy" 'org-roam-dailies-goto-yesterday
+
+   "fs" 'grep-find
+
+   "gg" 'magit
+
+   "hf" 'describe-function
+   "hk" 'describe-key
+   "hm" 'describe-mode
+   "ht" 'consult-theme
+   "hv" 'describe-variable
+
+   "mc" 'vlad/close-other-tabs
+   "mt" 'tab-bar-new-tab
+
+   "nf" 'org-roam-node-find
+   "ni" 'org-roam-node-insert
+   "ns" 'org-roam-db-sync
+   "nt" 'org-roam-buffer-toggle
+
+   "oc" 'vlad/open-config
+   "op" 'vlad/open-plan
+
+   "pv" 'vlad/open-current-directory-in-dired
+
+   "up" 'straight-pull-all
+
+   "w" 'vlad/toggle-visual-line-mode
+
+   "<" 'consult-buffer
+
+   "." 'find-file)
   )
 
 (provide 'vlad/packages/general)

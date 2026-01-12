@@ -143,21 +143,6 @@ Runs `compile' at the current project's root."
   (cond (vlad-projects-mode (vlad/load-projects-info))
         (t (vlad/save-projects-info))))
 
-(general-def 'normal '(general-default-keymaps dired-mode-map)
-  :prefix "SPC"
-
-  "pa" 'vlad/add-project
-  "pc" 'vlad/compile-project
-  "pd" 'vlad/remove-project
-  "pp" 'vlad/switch-project
-
-  ;; FIXME(vlad): this should be something like projectile-ripgrep.
-  ;; "ps" 'projectile-ripgrep
-  "ps" 'rgrep
-
-  "SPC" 'vlad/find-project-file
-  )
-
 (vlad/load-projects-info)
 (add-hook 'kill-emacs-hook 'vlad/save-projects-info)
 

@@ -84,6 +84,35 @@
 (setq-default electric-pair-inhibit-predicate 'electric-pair-conservative-inhibit)
 
 (global-eldoc-mode -1)
+(setq kill-do-not-save-duplicates t)
+(setq blink-matching-paren nil)
+
+(setq comment-multi-line t)
+(setq comment-empty-lines nil)
+
+;; (setq font-lock-maximum-decoration 1)
+
+(setq-default fill-column 120)
+
+;; NOTE(vlad): disable line wrapping by default.
+(setq-default truncate-lines t)
+;; (global-visual-line-mode 1)
+
+(defun vlad/toggle-visual-line-mode ()
+  (interactive)
+  (if (vlad/minor-mode-enabled-p visual-line-mode)
+      (progn
+        (let ((inhibit-message t))
+          (visual-line-mode -1)
+          (unless truncate-lines (toggle-truncate-lines)))
+        (message "Line truncation enabled")
+        )
+    (progn
+      (let ((inhibit-message t))
+        (when truncate-lines (toggle-truncate-lines))
+        (visual-line-mode))
+        (message "Line truncation disabled")
+      )))
 
 (provide 'vlad/emacs/config)
 ;;; vlad/emacs/config.el ends here

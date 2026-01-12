@@ -15,8 +15,8 @@
         ;; (bash "https://github.com/tree-sitter/tree-sitter-bash")
         (cmake "https://github.com/uyha/tree-sitter-cmake")
         ;; (common-lisp "https://github.com/theHamsta/tree-sitter-commonlisp")
-        (c "https://github.com/tree-sitter/tree-sitter-c")
-        (cpp "https://github.com/tree-sitter/tree-sitter-cpp")
+        ;; (c "https://github.com/tree-sitter/tree-sitter-c")
+        ;; (cpp "https://github.com/tree-sitter/tree-sitter-cpp")
         ;; (css "https://github.com/tree-sitter/tree-sitter-css")
         ;; (csharp "https://github.com/tree-sitter/tree-sitter-c-sharp")
         (elisp "https://github.com/Wilfred/tree-sitter-elisp")
@@ -56,11 +56,12 @@
       (treesit-install-language-grammar language vlad/treesit-cache-dir))))
 
 (setq major-mode-remap-alist
- '((c-mode . c-ts-mode)
-   (c++-mode . c++-ts-mode)
-   (c-or-c++-mode . c-or-c++-ts-mode)
-   (js-json-mode . json-ts-mode)
-   (python-mode . python-ts-mode)))
+      '(
+        ;; (c-mode . c-ts-mode)
+        ;; (c++-mode . c++-ts-mode)
+        ;; (c-or-c++-mode . c-or-c++-ts-mode)
+        (js-json-mode . json-ts-mode)
+        (python-mode . python-ts-mode)))
 
 (provide 'vlad/emacs/tree-sitter)
 ;;; vlad/emacs/tree-sitter.el ends here

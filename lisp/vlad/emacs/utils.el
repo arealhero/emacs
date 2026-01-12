@@ -58,5 +58,10 @@
                 (cl-remove-if-not killable-buffer-p (buffer-list))))
     (delete-other-windows)))
 
+(defun vlad/minor-mode-enabled-p (mode)
+  (interactive)
+  (and (boundp mode)
+       (symbol-value mode)))
+
 (provide 'vlad/emacs/utils)
 ;;; vlad/emacs/utils.el ends here

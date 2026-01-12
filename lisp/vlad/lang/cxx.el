@@ -4,13 +4,80 @@
 
 ;;; Code:
 
-;; (setq c-ts-mode-indent-style nil)
-(setq c-ts-mode-indent-offset 4)
+(setq c-basic-offset 4)
 
-(require 'semantic/symref/grep)
-(add-to-list 'semantic-symref-filepattern-alist '(c-ts-mode "*.[ch]"))
+;; NOTE(vlad): based on Casey Muratori's Big Fun C++ Style (c).
+(defconst vlad/cxx-style
+  '((c-electric-pound-behavior   . nil)
+    (c-tab-always-indent         . t)
+    (c-comment-only-line-offset  . 0)
+    (c-hanging-braces-alist      . ((class-open)
+                                    (class-close)
+                                    (defun-open)
+                                    (defun-close)
+                                    (inline-open)
+                                    (inline-close)
+                                    (brace-list-open)
+                                    (brace-list-close)
+                                    (brace-list-intro)
+                                    (brace-list-entry)
+                                    (block-open)
+                                    (block-close)
+                                    (substatement-open)
+                                    (statement-case-open)
+                                    (class-open)))
+    (c-hanging-colons-alist      . ((inher-intro)
+                                    (case-label)
+                                    (label)
+                                    (access-label)
+                                    (access-key)
+                                    (member-init-intro)))
+    ;; TODO(vlad): Disable this?
+    (c-cleanup-list              . (scope-operator
+                                    list-close-comma
+                                    defun-close-semi))
+    (c-offsets-alist             . ((arglist-close         .  c-lineup-arglist)
+                                    (label                 .  -)
+                                    (access-label          .  -)
+                                    (substatement-open     .  0)
+                                    (statement-case-intro  .  +)
+                                    ;; (cpp-macro             .  nil)
+                                    ;; (statement-block-intro .  c-lineup-for)
+                                    (case-label            .  +)
+                                    (block-open            .  0)
+                                    (inline-open           .  0)
+                                    (topmost-intro-cont    .  0)
+                                    (knr-argdecl-intro     .  -)
+                                    (brace-list-open       .  0)
+                                    (brace-list-intro      .  +)))
+    ;; (c-echo-syntactic-information-p . t)
+    )
+    "My C/C++ Style")
 
-;; (add-to-list 'auto-mode-alist '("\\.h\\'" . c++-ts-mode))
+(c-add-style "vlad" vlad/cxx-style)
+
+(defun vlad/header-format ()
+  "Header file placeholder."
+  (insert "#pragma once\n\n"))
+
+(defun vlad/cxx-hook ()
+  (c-set-style "vlad")
+  (c-toggle-comment-style -1) ;; NOTE(vlad): Use line comments.
+
+  (setq tab-width 8
+        indent-tabs-mode nil)
+
+  ;; Additional style stuff
+  (c-set-offset 'member-init-intro '++)
+
+  ;; No hungry backspace
+  (c-toggle-auto-hungry-state -1)
+
+  (cond ((file-exists-p buffer-file-name) t)
+        ((string-match "[.]h" buffer-file-name) (vlad/header-format))))
+
+(add-hook 'c-mode-hook 'vlad/cxx-hook)
+(add-hook 'c++-mode-hook 'vlad/cxx-hook)
 
 (use-package clang-format
   :straight t

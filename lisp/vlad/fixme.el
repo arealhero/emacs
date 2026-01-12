@@ -19,9 +19,20 @@
   '((t :foreground "dodger blue" :slant normal :bold t))
   "Face for NOTE-like keywords.")
 
+(defface vlad/study
+  '((t :inherit isearch :slant normal :bold t))
+  "Face for usernames in comments.")
+
+;; (defface vlad/study
+;;   '((t :foreground "yellow" :slant normal :bold t))
+;;   "Face for STUDY-like keywords.")
+
 (defface vlad/username
   '((t :inherit font-lock-type-face :slant normal :bold nil))
   "Face for usernames in comments.")
+
+(defconst vlad/username-group
+  (rx (group (one-or-more (or alnum "-" "_")))))
 
 (defconst vlad/todo-keywords-group
   (rx (group (or (seq word-start
@@ -32,7 +43,7 @@
                           (seq (any "Cc") "rit" (optional "ical")))))
              word-end
              (optional (seq "("
-                            (group (one-or-more alnum))
+                            (regexp vlad/username-group)
                             ")"))
              (optional ":"))))
 
@@ -41,10 +52,20 @@
                  (seq "@" word-start
                       (or (seq (any "Nn") "ote")
                           (seq (any "Oo") "ptimization")
-                          (seq (any "Rr") "ef" (optional "erence")))))
+                          (seq (any "Rr") "ef" (optional "erence"))
+                          (seq "tag"))))
              word-end
              (optional (seq "("
-                            (group (one-or-more alnum))
+                            (regexp vlad/username-group)
+                            ")"))
+             (optional ":"))))
+
+(defconst vlad/study-keywords-group
+  (rx (group (seq word-start
+                  (or "STUDY" (seq "PERF" (optional "ORMANCE"))))
+             word-end
+             (optional (seq "("
+                            (regexp vlad/username-group)
                             ")"))
              (optional ":"))))
 
@@ -64,6 +85,11 @@
     ;; Highlight all NOTE keywords in comments
     (,(rx (regexp vlad/note-keywords-group))
      (1 (when (vlad/in-comment-p) 'vlad/note) prepend)
+     (2 (when (vlad/in-comment-p) 'vlad/username) prepend t))
+
+    ;; Highlight all STUDY keywords in comments
+    (,(rx (regexp vlad/study-keywords-group))
+     (1 (when (vlad/in-comment-p) 'vlad/study) prepend)
      (2 (when (vlad/in-comment-p) 'vlad/username) prepend t))
     ))
 
