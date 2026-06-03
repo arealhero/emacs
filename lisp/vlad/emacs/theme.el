@@ -20,8 +20,17 @@
                          tab-mark
                          missing-newline-at-eof))
 
-;; (set-frame-font "Fira Code 18" nil t)
-(set-frame-font "Hack 12" nil t)
+(defun vlad/set-first-available-font (font-names size)
+  (let ((found nil))
+    (dolist (font-name font-names)
+      (unless found
+        (if (find-font (font-spec :name font-name))
+            (progn
+              (set-frame-font (format "%s-%s" font-name size) nil t)
+              (setq found t)))))))
+
+(vlad/set-first-available-font '("Hack" "Fira Code" "Monaco" "Consolas") 18)
+
 (set-face-italic 'italic nil) ;; Looks bad IMO
 
 (defun vlad/font-adjust (increment)
@@ -37,8 +46,8 @@
   (vlad/font-adjust -2))
 
 ;; (load-theme 'modus-vivendi-tinted t)
-;; (load-theme 'modus-vivendi t)
-(load-theme 'modus-operandi-tinted t)
+(load-theme 'modus-vivendi t)
+;; (load-theme 'modus-operandi-tinted t)
 ;; (load-theme 'modus-operandi t)
 
 (column-number-mode 1)

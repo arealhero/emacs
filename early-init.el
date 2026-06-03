@@ -9,6 +9,9 @@
 
 (add-to-list 'load-path (locate-user-emacs-file "lisp"))
 
+(add-to-list 'initial-frame-alist '(fullscreen . maximized))
+(add-to-list 'default-frame-alist '(fullscreen . maximized))
+
 (require 'vlad/emacs/early-init-utils)
 
 ;; FIXME(vlad): set package-user-dir

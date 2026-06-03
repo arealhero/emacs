@@ -17,6 +17,8 @@
                           (vlad/get-env-var "XDG_CACHE_HOME" "~/.cache")))
 (defconst vlad/emacs-cache-dir (vlad/normalize-directory "emacs" vlad/cache-dir))
 
+(make-directory vlad/emacs-cache-dir t)
+
 ;; NOTE(vlad): functions to retrieve normalized cache files and directories.
 (defun vlad/get-cache-file (filename)
   "Get `FILENAME' in Emacs' cache directory."

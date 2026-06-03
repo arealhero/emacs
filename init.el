@@ -22,7 +22,7 @@
 (require 'vlad/emacs/dired)
 (require 'vlad/emacs/hideshow)
 (require 'vlad/emacs/compile)
-(require 'vlad/emacs/tree-sitter)
+;; (require 'vlad/emacs/tree-sitter)
 
 ;; NOTE(vlad): use straight to fetch packages.
 (require 'vlad/packages/straight)
@@ -65,6 +65,8 @@
 (setq inferior-octave-startup-args '("-i" "-q" "--no-line-editing"))
 
 ;; (require 'vlad-ya)
+
+(server-start)
 
 (provide 'init)
 
