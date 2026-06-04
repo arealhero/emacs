@@ -79,6 +79,9 @@
 (add-hook 'c-mode-hook 'vlad/cxx-hook)
 (add-hook 'c++-mode-hook 'vlad/cxx-hook)
 
+(add-hook 'c-mode-hook 'hs-minor-mode)
+(add-hook 'c++-mode-hook 'hs-minor-mode)
+
 (use-package clang-format
   :straight t
   :defer t

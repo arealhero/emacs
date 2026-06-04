@@ -4,6 +4,17 @@
 
 ;;; Code:
 
+;; FIXME(vlad): Move this somewhere else.
+(defconst vlad/unit-test-regex (rx line-start "test_"))
+(defun vlad/toggle-unit-tests-folding ()
+  (interactive)
+  (let ((saved-position (point)))
+    (goto-char (point-min))
+    (while (re-search-forward vlad/unit-test-regex nil t)
+      (beginning-of-line 2)
+      (hs-toggle-hiding))
+    (goto-char saved-position)))
+
 ;; @ref: https://github.com/noctuid/general.el
 (use-package general
   :after evil
@@ -214,8 +225,19 @@
     "dp" 'vlad/gdb-print
     "ds" 'vlad/start-debugger
     "dk" 'vlad/stop-debugger
+
     "s" 'vlad/cxx-switch-between-header-and-source-files
-    "t" 'vlad/cxx-open-unit-test-file)
+    "t" 'vlad/cxx-open-unit-test-file
+
+    "ca" 'eglot-code-actions
+    "cr" 'eglot-rename
+    "lh" 'eglot-inlay-hints-mode
+    "rf" 'xref-find-references
+    "rn" 'eglot-rename
+    "rw" 'eglot-reconnect
+
+    "yt" 'vlad/toggle-unit-tests-folding
+    )
 
   (general-def 'normal '(c-mode-map c++-mode-map)
     "<f5>" 'gud-run
