@@ -28,7 +28,7 @@
 (require 'vlad/packages/straight)
 
 (require 'vlad/packages/general)
-;; (require 'vlad/packages/company)
+(require 'vlad/packages/company)
 (require 'vlad/packages/consult)
 (require 'vlad/packages/evil)
 (require 'vlad/packages/magit)
@@ -66,7 +66,16 @@
 
 ;; (require 'vlad-ya)
 
+;; NOTE(vlad): `emacsclient' is used as a default editor, so the server needs to be started here.
 (server-start)
+
+;; NOTE(vlad): I don't know why but requiring eglot messes something up real badly. For example, M-x starts failing
+;;             due to `set-local' function being undefined. Clean rebuild didn't help. The funny thing is that
+;;             if I require eglot after initialising my straight.el packages then all works just fine.
+;;
+;;             I have no idea why that happens and I don't care. That said, I decided to move the eglot initialisation
+;;             here.
+(require 'vlad/emacs/eglot)
 
 (provide 'init)
 

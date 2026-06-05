@@ -4,16 +4,18 @@
 
 ;;; Code:
 
-;; NOTE(vlad): clangd initial arguments.
+(require 'eglot)
 
-(when-let* ((clangd (seq-find #'executable-find '("clangd")))
-            ;; NOTE(vlad): This has to match the tool string in `compile-commands.json'.
-            ;; clangd will then use these tools to get system header paths.
-            (init-args "--query-driver=/**/*"))
-  (when (eq window-system 'w32)
-    (setq init-args "--query-driver=*:\\**\\*"))
-  (add-to-list 'eglot-server-programs
-               `((c-ts-mode c++-ts-mode) ,clangd ,init-args)))
+(add-to-list 'eglot-server-programs
+            '((c-ts-mode c++-ts-mode) . ("clangd" "--header-insertion=never")))
+
+(setq eglot-ignored-server-capabilities
+      '(
+        :documentHighlightProvider
+        :documentOnTypeFormattingProvider ;; NOTE(vlad): Stop messing up my code as I write it.
+        ))
+
+(add-hook 'eglot-managed-mode-hook (lambda () (eglot-inlay-hints-mode -1)))
 
 (provide 'vlad/emacs/eglot)
 ;;; vlad/emacs/eglot.el ends here
