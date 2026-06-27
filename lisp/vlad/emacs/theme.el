@@ -29,7 +29,7 @@
               (set-frame-font (format "%s-%s" font-name size) nil t)
               (setq found t)))))))
 
-(vlad/set-first-available-font '("Hack" "Fira Code" "Monaco" "Consolas") 18)
+(vlad/set-first-available-font '("Hack" "Fira Code" "Monaco" "Consolas") 14)
 
 (set-face-italic 'italic nil) ;; Looks bad IMO
 

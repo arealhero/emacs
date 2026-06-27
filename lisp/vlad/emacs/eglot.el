@@ -7,7 +7,7 @@
 (require 'eglot)
 
 (add-to-list 'eglot-server-programs
-            '((c-ts-mode c++-ts-mode) . ("clangd" "--header-insertion=never")))
+            '((c-mode c++-mode) . ("clangd" "--header-insertion=never")))
 
 (setq eglot-ignored-server-capabilities
       '(

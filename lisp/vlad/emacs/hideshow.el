@@ -6,8 +6,8 @@
 
 (require 'hideshow)
 
-(add-hook 'c-ts-mode-hook 'hs-minor-mode)
-(add-hook 'c++-ts-mode-hook 'hs-minor-mode)
+(add-hook 'c-mode-hook 'hs-minor-mode)
+(add-hook 'c++-mode-hook 'hs-minor-mode)
 
 (provide 'vlad/emacs/hideshow)
 ;;; vlad/emacs/hideshow.el ends here

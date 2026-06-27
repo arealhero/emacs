@@ -19,7 +19,9 @@
 
 (when (vlad/macos-system-p)
   (setq mac-option-modifier 'meta)
-  (setq mac-command-modifier 'super))
+  (setq mac-command-modifier 'super)
+  ;; NOTE(vlad): For yabai.
+  (menu-bar-mode t))
 
 (blink-cursor-mode -1)
 
@@ -83,12 +85,13 @@
 ;; (setq electric-pair-preserve-balance nil)
 (setq-default electric-pair-inhibit-predicate 'electric-pair-conservative-inhibit)
 
-(global-eldoc-mode -1)
 (setq kill-do-not-save-duplicates t)
 (setq blink-matching-paren nil)
 
 (setq comment-multi-line t)
 (setq comment-empty-lines nil)
+
+(set-default-coding-systems 'utf-8)
 
 ;; (setq font-lock-maximum-decoration 1)
 

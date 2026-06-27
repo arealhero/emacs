@@ -10,7 +10,7 @@
   (setq company-idle-delay (lambda () (if (company-in-string-or-comment) nil 0.2)))
   (setq company-global-modes '(not erc-mode message-mode eshell-mode))
 
-  (add-hook 'c-ts-mode-hook
+  (add-hook 'c-mode-hook
             (lambda ()
               (when (file-remote-p default-directory)
                 (company-mode -1))))

@@ -4,6 +4,7 @@
 
 ;;; Code:
 
+;; FIXME(vlad): Use `xdg.el' utils like `xdg-cache-home' etc.
 (defconst vlad/data-dir (vlad/normalize-directory
                          (vlad/get-env-var "XDG_DATA_DIR" "~/data"))) ;; TODO: this is not XDG's
 
@@ -19,8 +20,10 @@
 (defconst vlad/emacs-backup-dir (vlad/get-cache-dir "backups"))
 
 (defun vlad/macos-system-p ()
-  "Return non-nil if Emacs was built for a Darwin system (macOS)."
   (eq system-type 'darwin))
+
+(defun vlad/windows-system-p ()
+  (eq system-type 'windows-nt))
 
 (defun vlad/get-current-time-string ()
   "Get current time as string."

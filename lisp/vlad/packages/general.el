@@ -244,7 +244,9 @@
     "<f9>" 'vlad/toggle-breakpoint
     "<f10>" 'gud-next
     "<f11>" 'gud-step
-    "<f12>" 'gud-finish)
+    "<f12>" 'gud-finish
+
+    "K" 'eldoc)
 
   ;; (general-def 'visual '(c-mode-map c++-mode-map)
   ;;   "=" 'vlad/clang-format-region)

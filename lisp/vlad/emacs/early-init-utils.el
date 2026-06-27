@@ -28,7 +28,7 @@
   "Get `DIR' in Emacs' cache directory (creates it if needed)."
   (let ((cache-dir (vlad/normalize-directory (vlad/get-cache-file dir))))
     (unless (file-directory-p cache-dir)
-      (make-directory cache-dir))
+      (make-directory cache-dir t))
     cache-dir))
 
 (defconst vlad/emacs-eln-cache-dir (vlad/get-cache-dir "eln-cache"))

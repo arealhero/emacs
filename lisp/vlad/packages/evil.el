@@ -17,6 +17,12 @@
         evil-respect-visual-line-mode t
         evil-search-module 'evil-search)
 
+  (defun vlad/evil-man-lookup ()
+    (interactive)
+    (call-interactively #'man))
+
+  (setq evil-lookup-func #'vlad/evil-man-lookup)
+
   :config
 
   (evil-set-undo-system 'undo-tree)

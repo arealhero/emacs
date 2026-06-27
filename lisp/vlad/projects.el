@@ -86,10 +86,8 @@
 
 Runs `compile' at the current project's root."
   (interactive)
-  (let* ((project-root (vlad/get-project-root))
-         (default-directory project-root))
-    (unless project-root
-      (error "Current buffer does not belong to any known project."))
+  (let ((default-directory (or (vlad/get-project-root)
+                               default-directory)))
     (call-interactively #'compile)))
 
 ;; FIXME(vlad): print directories alongside names.

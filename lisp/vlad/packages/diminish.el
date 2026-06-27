@@ -14,6 +14,7 @@
 (diminish 'undo-tree-mode)
 (diminish 'visual-line-mode)
 (diminish 'whitespace-mode)
+(diminish 'yas-minor-mode)
 
 (provide 'vlad/packages/diminish)
 ;;; vlad/packages/diminish.el ends here

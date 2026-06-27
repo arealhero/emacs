@@ -13,61 +13,41 @@
                               (float-time (time-subtract after-init-time before-init-time))
                               gcs-done)))
 
-;; NOTE(vlad): general Emacs configuration.
+;; NOTE(vlad): General Emacs configuration.
 (require 'vlad/emacs/utils)
 (require 'vlad/emacs/config)
 (require 'vlad/emacs/theme)
 
 ;; NOTE(vlad): Emacs built-in packages configuration.
+(require 'vlad/emacs/compile)
 (require 'vlad/emacs/dired)
 (require 'vlad/emacs/hideshow)
-(require 'vlad/emacs/compile)
-;; (require 'vlad/emacs/tree-sitter)
+(require 'vlad/emacs/octave)
+(require 'vlad/emacs/server)
 
-;; NOTE(vlad): use straight to fetch packages.
+;; NOTE(vlad): Use straight to fetch packages.
 (require 'vlad/packages/straight)
 
-(require 'vlad/packages/general)
 (require 'vlad/packages/company)
 (require 'vlad/packages/consult)
 (require 'vlad/packages/evil)
+(require 'vlad/packages/general)
 (require 'vlad/packages/magit)
 (require 'vlad/packages/minibuffer)
-;;(require 'vlad/packages/org)
 (require 'vlad/packages/undo-tree)
-
-;; FIXME(vlad): flycheck vs flymake.
-;; FIXME(vlad): enable flycheck for some modes like `emacs-lisp'?
-;; (use-package flycheck
-;;   :straight t
-;;   :config
-;;   :hook
-;;   (after-init . global-flycheck-mode))
+(require 'vlad/packages/yasnippet)
 
 ;; NOTE(vlad): diminish fetched packages.
 (require 'vlad/packages/diminish)
 
-;; NOTE(vlad): language-specific configuration.
-(require 'vlad/lang/cmake)
+;; NOTE(vlad): Language-specific configuration.
 (require 'vlad/lang/cxx)
-(require 'vlad/lang/json)
-(require 'vlad/lang/yaml)
+(require 'vlad/lang/eon)
 
 ;; NOTE(vlad): my packages.
 (require 'vlad/fixme)
 (require 'vlad/projects)
 (require 'vlad/debug)
-
-;; TODO(vlad): move to `vlad/emacs/octave.el'.
-;; FIXME(vlad): wrap `octave-source-file' so it could open inferior octave buffer in a split.
-;;              And also it should probably `erase-buffer' before sourcing file
-;;              also clearing and clearvars-ing existing octave session.
-(setq inferior-octave-startup-args '("-i" "-q" "--no-line-editing"))
-
-;; (require 'vlad-ya)
-
-;; NOTE(vlad): `emacsclient' is used as a default editor, so the server needs to be started here.
-(server-start)
 
 ;; NOTE(vlad): I don't know why but requiring eglot messes something up real badly. For example, M-x starts failing
 ;;             due to `set-local' function being undefined. Clean rebuild didn't help. The funny thing is that
