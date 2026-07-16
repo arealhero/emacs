@@ -1,0 +1,9 @@
+# -*- mode: snippet -*-
+# name: enum
+# key: enum
+# --
+enum $1
+{
+    $0
+};
+typedef enum $1 $1;
