@@ -70,7 +70,7 @@
     "_"))
 
 (defun eon-keywords ()
-  '("mutable" "if" "else" "return" "while"))
+  '("mutable" "if" "else" "return" "while" "break" "continue"))
 
 (defun eon-builtins ()
   '("true" "false"))
