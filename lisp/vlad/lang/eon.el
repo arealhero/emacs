@@ -66,14 +66,18 @@
   '("s8" "s16" "s32" "s64"
     "u8" "u16" "u32" "u64"
     "f32" "f64"
-    "void"
+    "void" "bool"
     "_"))
 
 (defun eon-keywords ()
   '("mutable" "if" "else" "return" "while"))
 
+(defun eon-builtins ()
+  '("true" "false"))
+
 (defun eon-font-lock-keywords ()
   (list `(,(regexp-opt (eon-keywords) 'symbols) . font-lock-keyword-face)
+        `(,(regexp-opt (eon-builtins) 'symbols) . font-lock-constant-face)
         `(,(regexp-opt (eon-types) 'symbols) . font-lock-type-face)))
 
 (defun eon--previous-non-empty-line ()
@@ -142,7 +146,7 @@
       (indent-line-to desired-indentation)
       (forward-char n))))
 
-(define-derived-mode eon-mode prog-mode "Simple C"
+(define-derived-mode eon-mode prog-mode "eon"
   "Major mode for eon programming language."
   :syntax-table eon-mode-syntax-table
   (setq-local font-lock-defaults '(eon-font-lock-keywords))
@@ -295,7 +299,7 @@
       (indent-line-to desired-indentation)
       (forward-char n))))
 
-(define-derived-mode eon-ssa-mode prog-mode "Simple C"
+(define-derived-mode eon-ssa-mode prog-mode "eon SSA"
   "Major mode for IR of eon programming language."
   :syntax-table eon-ssa-mode-syntax-table
   (setq-local font-lock-defaults '(eon-ssa-font-lock-keywords))
