@@ -93,6 +93,9 @@
 
 (set-default-coding-systems 'utf-8)
 
+;; NOTE(vlad): Using LF instead of CRLF in batch scripts causes heigenbugs.
+(add-to-list 'auto-coding-alist '("\\.bat\\'" . dos))
+
 ;; (setq font-lock-maximum-decoration 1)
 
 (setq-default fill-column 120)
