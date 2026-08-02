@@ -20,8 +20,8 @@
   "Face for NOTE-like keywords.")
 
 (defface vlad/study
-  '((t :inherit isearch :slant normal :bold t))
-  "Face for usernames in comments.")
+  '((t :foreground "yellow" :slant normal :bold t))
+  "Face for STUDY-like keywords.")
 
 ;; (defface vlad/study
 ;;   '((t :foreground "yellow" :slant normal :bold t))
@@ -62,7 +62,9 @@
 
 (defconst vlad/study-keywords-group
   (rx (group (seq word-start
-                  (or "STUDY" (seq "PERF" (optional "ORMANCE"))))
+                  (or "STUDY"
+                      "IMPORTANT"
+                      (seq "PERF" (optional "ORMANCE"))))
              word-end
              (optional (seq "("
                             (regexp vlad/username-group)
