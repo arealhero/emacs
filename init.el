@@ -57,6 +57,17 @@
 ;;             here.
 (require 'vlad/emacs/eglot)
 
+(defcustom vlad/installation-type 'default
+  "Current installation type"
+  :type '(radio :tag "Type"
+                (const :tag "Default" default)
+                (const :tag "Yandex" yandex)
+                (const :tag "Kaspersky" kaspersky))
+  :group 'vlad)
+
+(if (eq vlad/installation-type 'yandex) (require 'vlad/job/yandex))
+(if (eq vlad/installation-type 'kaspersky) (require 'vlad/job/kaspersky))
+
 (provide 'init)
 
 ;;; init.el ends here

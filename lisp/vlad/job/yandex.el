@@ -1,4 +1,4 @@
-;;; vlad-ya.el --- Yandex-specific Emacs configuration.  -*- lexical-binding: t; -*-
+;;; yandex.el --- Yandex-specific Emacs configuration.  -*- lexical-binding: t; -*-
 
 ;;; Commentary:
 
@@ -156,5 +156,5 @@
             (t ())))
     (goto-char saved-pos)))
 
-(provide 'vlad-ya)
-;;; vlad-ya.el ends here
+(provide 'yandex)
+;;; yandex.el ends here

@@ -31,6 +31,14 @@
       (make-directory cache-dir t))
     cache-dir))
 
+(defun vlad/get-user-dir (dir)
+  "Get `DIR' in Emacs' user directory (creates it if needed)."
+  (let ((user-dir (vlad/normalize-directory
+                   (expand-file-name dir user-emacs-directory))))
+    (unless (file-directory-p user-dir)
+      (make-directory user-dir))
+    user-dir))
+
 (defconst vlad/emacs-eln-cache-dir (vlad/get-cache-dir "eln-cache"))
 
 (provide 'vlad/emacs/early-init-utils)
