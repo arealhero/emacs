@@ -10,8 +10,8 @@
       value
     default-value))
 
-(defun vlad/normalize-directory (directory &optional default-directory)
-  (file-name-as-directory (expand-file-name directory default-directory)))
+(defun vlad/normalize-directory (directory &optional parent-directory)
+  (file-name-as-directory (expand-file-name directory parent-directory)))
 
 (defconst vlad/cache-dir (vlad/normalize-directory
                           (vlad/get-env-var "XDG_CACHE_HOME" "~/.cache")))

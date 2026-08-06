@@ -4,9 +4,21 @@
 
 ;;; Code:
 
-;; FIXME(vlad): Use `xdg.el' utils like `xdg-cache-home' etc.
-(defconst vlad/data-dir (vlad/normalize-directory
-                         (vlad/get-env-var "XDG_DATA_DIR" "~/data"))) ;; TODO: this is not XDG's
+(defun vlad/macos-system-p ()
+  (eq system-type 'darwin))
+
+(defun vlad/windows-system-p ()
+  (eq system-type 'windows-nt))
+
+(if (vlad/windows-system-p)
+    ;; NOTE(vlad): "~/" expands to "%USERPROFILE%\AppData\Roaming".
+    (defconst vlad/data-dir (vlad/normalize-directory "data"
+                                                      (vlad/get-env-var "%USERPROFILE%" "~/../../")))
+
+  ;; FIXME(vlad): Use `xdg.el' utils like `xdg-cache-home' etc.
+  (defconst vlad/data-dir (vlad/normalize-directory
+                           (vlad/get-env-var "XDG_DATA_DIR" "~/data"))) ;; TODO: this is not XDG's
+  )
 
 (defconst vlad/package-cache-dir (vlad/get-cache-file "package-cache"))
 (defconst vlad/org-latex-preview-cache-dir (vlad/get-cache-dir "org-latex-preview"))
@@ -18,12 +30,6 @@
 ;; The next code block moves those files to the separate directory.
 (defconst vlad/emacs-lock-files-dir (vlad/get-cache-dir "lock-files"))
 (defconst vlad/emacs-backup-dir (vlad/get-cache-dir "backups"))
-
-(defun vlad/macos-system-p ()
-  (eq system-type 'darwin))
-
-(defun vlad/windows-system-p ()
-  (eq system-type 'windows-nt))
 
 (defun vlad/get-current-time-string ()
   "Get current time as string."
