@@ -30,6 +30,9 @@
     "s-n" 'next-error
     "s-p" 'previous-error
 
+    "M-n" 'next-error
+    "M-p" 'previous-error
+
     "]g" 'flymake-goto-next-error
     "[g" 'flymake-goto-prev-error
 
@@ -46,7 +49,7 @@
     "C-S-k" 'vlad/font-inc
     "C-Л" 'vlad/font-inc
     "M-v" 'yank
-    "M-n" 'evil-buffer-new
+    ;; "M-n" 'evil-buffer-new
 
     "s-v" (lambda () (interactive) (yank-pop))
 
