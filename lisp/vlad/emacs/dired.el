@@ -6,6 +6,10 @@
 
 (require 'dired)
 
+(when (vlad/macos-system-p)
+  ;; FIXME(vlad): Make sure this executable exists, otherwise suggest installing GNU coreutils via 'brew install coreutils'.
+  (setq insert-directory-program "gls"))
+
 (setq dired-listing-switches "-alhv --group-directories-first")
 (setq dired-dwim-target t)
 

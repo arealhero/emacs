@@ -62,11 +62,13 @@
   :type '(radio :tag "Type"
                 (const :tag "Default" default)
                 (const :tag "Yandex" yandex)
-                (const :tag "Kaspersky" kaspersky))
+                (const :tag "Kaspersky" kaspersky)
+                (const :tag "VK" vk))
   :group 'vlad)
 
 (if (eq vlad/installation-type 'yandex) (require 'vlad/job/yandex))
 (if (eq vlad/installation-type 'kaspersky) (require 'vlad/job/kaspersky))
+(if (eq vlad/installation-type 'vk) (require 'vlad/job/vk))
 
 (provide 'init)
 

@@ -5,6 +5,7 @@
 ;;; Code:
 
 (setq custom-file (locate-user-emacs-file "custom.el"))
+(load custom-file)
 
 ;; Personal information
 (setq user-full-name "Vladislav Sharshukov"
