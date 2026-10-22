@@ -73,7 +73,8 @@
   ;; No hungry backspace
   (c-toggle-auto-hungry-state -1)
 
-  (cond ((file-exists-p buffer-file-name) t)
+  (cond ((and buffer-file-name ;; NOTE(vlad): Testing that the `buffer-file-name' is not nil.
+              (file-exists-p buffer-file-name) t))
         ((string-match "[.]h" buffer-file-name) (vlad/header-format))))
 
 (add-hook 'c-mode-hook 'vlad/cxx-hook)
