@@ -30,6 +30,9 @@
 (setq window-resize-pixelwise t
       frame-resize-pixelwise t)
 
+;; NOTE(vlad): Monday is the first day of the week.
+(setq calendar-week-start-day 1)
+
 (defun display-startup-echo-area-message ()
   "Hide advertisement from minibuffer."
   (message ""))
