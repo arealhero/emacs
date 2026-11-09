@@ -15,7 +15,11 @@
         :documentOnTypeFormattingProvider ;; NOTE(vlad): Stop messing up my code as I write it.
         ))
 
-(add-hook 'eglot-managed-mode-hook (lambda () (eglot-inlay-hints-mode -1)))
+(add-hook 'eglot-managed-mode-hook
+          (lambda ()
+            (eglot-inlay-hints-mode -1)
+            (when (fboundp 'eglot-semantic-tokens-mode)
+              (eglot-semantic-tokens-mode -1))))
 
 (provide 'vlad/emacs/eglot)
 ;;; vlad/emacs/eglot.el ends here
