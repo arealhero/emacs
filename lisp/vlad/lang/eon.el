@@ -78,7 +78,8 @@
 (defun eon-font-lock-keywords ()
   (list `(,(regexp-opt (eon-keywords) 'symbols) . font-lock-keyword-face)
         `(,(regexp-opt (eon-builtins) 'symbols) . font-lock-constant-face)
-        `(,(regexp-opt (eon-types) 'symbols) . font-lock-type-face)))
+        `(,(regexp-opt (eon-types) 'symbols) . font-lock-type-face)
+        `("# *[#a-zA-Z0-9_]+" . font-lock-preprocessor-face)))
 
 (defun eon--previous-non-empty-line ()
   "Returns either NIL when there is no such line or a pair (line . indentation)"
